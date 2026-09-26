@@ -28,7 +28,9 @@ export const CartDrawer: React.FC = () => {
   const freeDeliveryThreshold = settings.freeDeliveryThreshold || 5000;
   const remainingForFreeDelivery = Math.max(0, freeDeliveryThreshold - cartSubtotal);
   const deliveryCharge =
-    cartSubtotal >= freeDeliveryThreshold ? 0 : settings.deliveryChargeInside || 80;
+    cartSubtotal >= freeDeliveryThreshold
+      ? 0
+      : (settings.deliveryChargeInside || 80);
   const finalTotal = Math.max(0, cartSubtotal - couponDiscount + deliveryCharge);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
