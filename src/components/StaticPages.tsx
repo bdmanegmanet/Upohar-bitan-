@@ -186,9 +186,16 @@ export const AboutUsPage: React.FC = () => {
 };
 
 export const FAQPage: React.FC = () => {
-  const { setCurrentPage } = useStore();
+  const { setCurrentPage, language } = useStore();
+  const isBn = language === 'bn';
 
-  const faqs = [
+  const faqs = isBn ? [
+    { q: 'ভঙ্গুর ক্রোকারিজ পরিবহনের সময় ভেঙে যাওয়া কীভাবে রোধ করা হয়?', a: 'প্রতিটি পণ্য আলাদাভাবে সুরক্ষিত ফোম ও এয়ার-কুশন দিয়ে প্যাক করা হয় এবং শক্ত কার্টনে পাঠানো হয়। পরিবহনে ক্ষতি হলে দ্রুত সমাধানের ব্যবস্থা করা হয়।' },
+    { q: '২৪ ক্যারেট গোল্ড রিমের পণ্য কি মাইক্রোওয়েভ ও ডিশওয়াশারে ব্যবহার করা যাবে?', a: 'আসল সোনার রিমযুক্ত পণ্য মাইক্রোওয়েভে ব্যবহার করা যাবে না। দীর্ঘদিনের সৌন্দর্য ধরে রাখতে হাতে ধোয়া সবচেয়ে নিরাপদ।' },
+    { q: 'কোন কোন পেমেন্ট পদ্ধতি গ্রহণ করা হয়?', a: 'ক্যাশ অন ডেলিভারি, বিকাশ, নগদ এবং ব্যাংক পেমেন্ট গ্রহণ করা হয়।' },
+    { q: 'ঢাকার ভেতরে ও বাইরে ডেলিভারি পেতে কত সময় লাগে?', a: 'ঢাকার ভেতরে সাধারণত ২৪–৪৮ ঘণ্টা এবং দেশের অন্যান্য অঞ্চলে সাধারণত ৪৮–৭২ ঘণ্টা সময় লাগে।' },
+    { q: 'সেটের একটি প্লেট ভেঙে গেলে আলাদাভাবে প্লেট কেনা যাবে?', a: 'হ্যাঁ। স্টকে থাকা পণ্য থেকে প্রয়োজনীয় প্লেট বা বাটি আলাদাভাবে অর্ডার করা যাবে।' },
+  ] : [
     {
       q: 'How are fragile crockery orders packaged to prevent breakage during transit?',
       a: 'We use custom 5-layer shockproof air-cushion wrapping, high-density honeycomb cardboard, and reinforced outer shipping cartons. Each plate and bowl is individually separated by foam sheets. In the rare event of transit damage, we provide a 100% free immediate replacement.',
@@ -218,14 +225,14 @@ export const FAQPage: React.FC = () => {
         className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1.5 mb-6 cursor-pointer"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        <span>Back to Home</span>
+        <span>{isBn ? 'হোম পেজে ফিরে যান' : 'Back to Home'}</span>
       </button>
 
       <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#A37835]">
-        Assistance & Care
+        {isBn ? 'সহায়তা ও গ্রাহকসেবা' : 'Assistance & Care'}
       </span>
       <h1 className="font-display text-3xl sm:text-4xl font-semibold text-stone-900 mt-1 mb-6">
-        Frequently Asked Questions
+        {isBn ? 'সাধারণ জিজ্ঞাসা (FAQ)' : 'Frequently Asked Questions'}
       </h1>
 
       <div className="space-y-4">
@@ -246,7 +253,8 @@ export const FAQPage: React.FC = () => {
 };
 
 export const DeliveryInfoPage: React.FC = () => {
-  const { settings, setCurrentPage } = useStore();
+  const { settings, setCurrentPage, language } = useStore();
+  const isBn = language === 'bn';
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -255,14 +263,14 @@ export const DeliveryInfoPage: React.FC = () => {
         className="text-xs text-stone-500 hover:text-stone-900 flex items-center gap-1.5 mb-6 cursor-pointer"
       >
         <ArrowLeft className="w-3.5 h-3.5" />
-        <span>Back to Home</span>
+        <span>{isBn ? 'হোম পেজে ফিরে যান' : 'Back to Home'}</span>
       </button>
 
       <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#A37835]">
-        Logistics & Shipping
+        {isBn ? 'ডেলিভারি ও পরিবহন' : 'Logistics & Shipping'}
       </span>
       <h1 className="font-display text-3xl sm:text-4xl font-semibold text-stone-900 mt-1 mb-6">
-        Delivery Information
+        {isBn ? 'ডেলিভারি তথ্য' : 'Delivery Information'}
       </h1>
 
       <div className="space-y-6 text-xs text-stone-700 leading-relaxed">
@@ -296,7 +304,8 @@ export const DeliveryInfoPage: React.FC = () => {
 };
 
 export const ReturnPolicyPage: React.FC = () => {
-  const { setCurrentPage } = useStore();
+  const { setCurrentPage, language } = useStore();
+  const isBn = language === 'bn';
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -340,7 +349,8 @@ export const ReturnPolicyPage: React.FC = () => {
 };
 
 export const TermsPolicyPage: React.FC = () => {
-  const { setCurrentPage } = useStore();
+  const { setCurrentPage, language } = useStore();
+  const isBn = language === 'bn';
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -369,7 +379,8 @@ export const TermsPolicyPage: React.FC = () => {
 };
 
 export const PrivacyPolicyPage: React.FC = () => {
-  const { setCurrentPage } = useStore();
+  const { setCurrentPage, language } = useStore();
+  const isBn = language === 'bn';
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
