@@ -186,7 +186,7 @@ export const AboutUsPage: React.FC = () => {
 };
 
 export const FAQPage: React.FC = () => {
-  const { setCurrentPage, language } = useStore();
+  const { setCurrentPage, language, settings } = useStore();
   const isBn = language === 'bn';
 
   const remoteFaqs = settings?.content?.faq || [];
