@@ -919,43 +919,10 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-      {/* Homepage Slider + Website Settings */}
+      {/* Website Settings + Homepage Slider */}
       {activeTab === 'settings' && (
         <div className="space-y-6 max-w-5xl">
-          <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-5">
-            <div>
-              <h3 className="font-display text-xl font-semibold text-stone-900">হোমপেজ ইমেজ স্লাইডার</h3>
-              <p className="text-xs text-stone-500 mt-1">ছবি 16:9 অনুপাতে দেখাবে এবং ৪ সেকেন্ড পরপর স্বয়ংক্রিয়ভাবে পরিবর্তিত হবে। Google Drive লিংক দিলে তা স্বয়ংক্রিয়ভাবে lh3.googleusercontent.com/d/ID ফরম্যাটে রূপান্তর হবে।</p>
-            </div>
-            <div className="space-y-4">
-              {(settings.heroSlides || []).map((slide, index) => (
-                <div key={slide.id} className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-stone-200">
-                  <div className="aspect-video rounded-lg overflow-hidden bg-stone-200">
-                    <img src={normalizeImageUrl(slide.image)} alt={slide.titleBn || 'স্লাইড'} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  </div>
-                  <div className="space-y-2">
-                    <input value={slide.image} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, image: normalizeImageUrl(e.target.value)} : s)})} placeholder="Google Drive / image link" className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      <input value={slide.titleBn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, titleBn: e.target.value} : s)})} placeholder="বাংলা শিরোনাম" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
-                      <input value={slide.titleEn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, titleEn: e.target.value} : s)})} placeholder="English title" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
-                      <input value={slide.subtitleBn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, subtitleBn: e.target.value} : s)})} placeholder="বাংলা সাবটাইটেল" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
-                      <input value={slide.subtitleEn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, subtitleEn: e.target.value} : s)})} placeholder="English subtitle" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
-                    </div>
-                  </div>
-                  <div className="flex lg:flex-col gap-2">
-                    <button type="button" onClick={() => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, active: s.active === false} : s)})} className="px-3 py-2 text-xs rounded-lg border border-stone-300 bg-white">{slide.active === false ? 'বন্ধ' : 'চালু'}</button>
-                    <button type="button" onClick={() => updateSettings({...settings, heroSlides: (settings.heroSlides || []).filter((s) => s.id !== slide.id)})} className="px-3 py-2 text-xs rounded-lg bg-rose-50 text-rose-700">মুছুন</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <button type="button" onClick={() => {
-              const slides = settings.heroSlides || [];
-              const n = slides.length + 1;
-              updateSettings({...settings, heroSlides: [...slides, {id: 'SLIDE-' + Date.now(), image: '', titleBn: 'নতুন স্লাইড', titleEn: 'New Slide', subtitleBn: '', subtitleEn: '', active: true}]});
-            }} className="px-4 py-2.5 text-xs font-semibold text-white bg-stone-900 rounded-lg">+ নতুন স্লাইড যোগ করুন</button>
-          </div>
-
+          <HomepageSliderManager />
           <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-6 max-w-4xl">
           <div className="border-b border-stone-200 pb-3">
             <h3 className="font-display text-xl font-semibold text-stone-900">
@@ -1100,6 +1067,9 @@ export const AdminPanel: React.FC = () => {
             </button>
           </div>
           </div>
+        </div>
+      )}
+
         </div>
       )}
 
