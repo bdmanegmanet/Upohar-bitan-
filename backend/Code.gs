@@ -585,10 +585,28 @@ function bootstrap() {
   return { success: true, message: 'Bootstrap data ready', data: {
     products: getProducts().data || [],
     settings: getSettings().data || {},
-    categories: [],
+    categories: getCategories().data || [],
     content: getContent().data || {},
-    faq: getFAQ().data || []
+    faq: getFAQ().data || [],
+    heroSlides: getHeroSlides().data || []
   }};
+}
+
+function getCategories() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CATEGORIES);
+  if (!sheet) return { success:true, data:[] };
+  var rows = sheet.getDataRange().getValues(), out=[];
+  for (var i=1;i<rows.length;i++) {
+    if (String(rows[i][5]).toLowerCase()==='false') continue;
+    out.push({
+      id:String(rows[i][0]),
+      name:String(rows[i][1]||''),
+      subcategories:String(rows[i][2]||'').split(',').map(function(s){return s.trim();}).filter(Boolean),
+      image:String(rows[i][3]||''),
+      description:String(rows[i][4]||'')
+    });
+  }
+  return {success:true,data:out};
 }
 
 function getHeroSlides() {
