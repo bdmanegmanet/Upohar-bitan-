@@ -706,44 +706,88 @@ export const api = {
     }
   },
 
-  async syncAllToSheets(settings: StoreSettings): Promise<{success:boolean; message:string; syncedAt:string}> {
+  async syncAllToSheets(settings: StoreSettings): Promise<{success:boolean; message:string; syncedAt:string; synced:any}> {
     const url = String(settings.googleAppsScriptUrl || '').trim();
     if (!url) throw new Error('Google Apps Script URL is not configured.');
 
+    const content = { ...(settings.content || {}) };
+    // Keep slider data in the Content sheet as a normal JSON record.
+    content.heroSlides = {
+      bn: JSON.stringify(settings.heroSlides || []),
+      en: JSON.stringify(settings.heroSlides || []),
+    };
+
     const payload = {
       settings: {
-        Store_Name: settings.storeName,
-        Store_Phone: settings.phone,
-        WhatsApp_Number: settings.whatsappNumber,
-        Store_Email: settings.email,
-        Delivery_Charge_Inside: String(settings.deliveryChargeInside),
-        Delivery_Charge_Outside: String(settings.deliveryChargeOutside),
-        Free_Delivery_Threshold: String(settings.freeDeliveryThreshold),
-        Bkash_Number: settings.bkashMerchantNumber,
-        Nagad_Number: settings.nagadMerchantNumber,
-        Currency: settings.currency,
-        Facebook_URL: settings.facebookUrl,
-        Instagram_URL: settings.instagramUrl,
+        Store_Name: settings.storeName || '',
+        Store_Phone: settings.phone || '',
+        WhatsApp_Number: settings.whatsappNumber || '',
+        Store_Email: settings.email || '',
+        Delivery_Charge_Inside: String(settings.deliveryChargeInside ?? ''),
+        Delivery_Charge_Outside: String(settings.deliveryChargeOutside ?? ''),
+        Free_Delivery_Threshold: String(settings.freeDeliveryThreshold ?? ''),
+        Bkash_Number: settings.bkashMerchantNumber || '',
+        Nagad_Number: settings.nagadMerchantNumber || '',
+        Currency: settings.currency || 'BDT',
+        Facebook_URL: settings.facebookUrl || '',
+        Instagram_URL: settings.instagramUrl || '',
         Google_Apps_Script_URL: url,
       },
-      content: settings.content || {},
-      heroSlides: settings.heroSlides || [],
+      content,
       faq: settings.content?.faq || [],
       coupons: this.getCoupons(),
     };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'syncAll', data: payload }),
-    });
-    if (!response.ok) throw new Error('HTTP ' + response.status + ': Google Sheets sync failed');
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 30000);
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'syncAll', data: payload }),
+        signal: controller.signal,
+      });
+    } catch (e: any) {
+      if (e?.name === 'AbortError') throw new Error('Google Sheets Push timeout (30s). Apps Script deployment/URL পরীক্ষা করুন।');
+      throw new Error('Google Sheets Push request failed: ' + (e?.message || 'network error'));
+    } finally {
+      window.clearTimeout(timeout);
+    }
 
-    const json = await response.json();
+    const raw = await response.text();
+    if (!response.ok) throw new Error('HTTP ' + response.status + ': Google Sheets sync failed');
+    let json: any;
+    try { json = JSON.parse(raw); }
+    catch { throw new Error('Apps Script valid JSON response দেয়নি: ' + raw.slice(0, 180)); }
+
     if (!json.success) throw new Error(json.message || 'Google Sheets sync failed');
+    const synced = json.synced || {};
+    const failed = Object.keys(synced).filter((k) => synced[k] !== true);
+    if (failed.length) throw new Error('এই অংশগুলো sync হয়নি: ' + failed.join(', '));
 
     const syncedAt = String(json.timestamp || new Date().toISOString());
-    return { success: true, message: json.message || 'All data synchronized', syncedAt };
+    return { success: true, message: json.message || 'All data synchronized', syncedAt, synced };
+  },
+
+  async verifySheetsConnection(settings: StoreSettings): Promise<{success:boolean; message:string; syncedAt?:string}> {
+    const url = String(settings.googleAppsScriptUrl || '').trim();
+    if (!url) throw new Error('Google Apps Script URL is not configured.');
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 20000);
+    try {
+      const response = await fetch(url + '?action=bootstrap&_=' + Date.now(), { method: 'GET', signal: controller.signal });
+      const raw = await response.text();
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const json = JSON.parse(raw);
+      if (!json.success) throw new Error(json.message || 'Sheets থেকে data পাওয়া যায়নি');
+      return { success: true, message: 'Google Sheets connection verified', syncedAt: new Date().toISOString() };
+    } catch (e: any) {
+      if (e?.name === 'AbortError') throw new Error('Google Sheets Sync timeout (20s)।');
+      throw new Error('Google Sheets থেকে Sync ব্যর্থ: ' + (e?.message || 'invalid response'));
+    } finally {
+      window.clearTimeout(timeout);
+    }
   },
 
   // Test live connection to Google Apps Script Web App
