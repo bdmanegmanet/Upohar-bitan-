@@ -349,6 +349,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const buyNowProduct = (product: Product, quantity = 1) => {
+    if (product.stock <= 0 || product.status === 'Out of Stock') {
+      showToast(language === 'bn' ? 'এই পণ্যটি বর্তমানে স্টকে নেই' : 'This product is currently out of stock');
+      return;
+    }
     setCart([{
       product,
       quantity: Math.min(Math.max(1, quantity), product.stock),
@@ -357,8 +361,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }]);
     setAppliedCoupon(null);
     setIsCartOpen(false);
+    setIsCheckoutOpen(false);
     setCurrentPage('checkout');
-    setIsCheckoutOpen(true);
   };
 
   const updateCartQuantity = (productId: string, quantity: number) => {
