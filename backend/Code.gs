@@ -733,10 +733,16 @@ function saveFAQ(data) {
 
 function syncAll(data) {
   setupDatabase();
-  if(data && data.settings) updateSettings(data.settings);
-  if(data && data.content) updateContent(data.content);
-  if(data && data.faq) saveFAQ(data.faq);
-  if(data && data.coupons) saveCoupons(data.coupons);
-  return {success:true,message:'All data synchronized'};
+  var result = { settings:false, content:false, faq:false, coupons:false };
+  if(data && data.settings) { updateSettings(data.settings); result.settings=true; }
+  if(data && data.content) { updateContent(data.content); result.content=true; }
+  if(data && data.faq) { saveFAQ(data.faq); result.faq=true; }
+  if(data && data.coupons) { saveCoupons(data.coupons); result.coupons=true; }
+  return {
+    success:true,
+    message:'All data synchronized',
+    timestamp:new Date().toISOString(),
+    synced:result
+  };
 }
 
