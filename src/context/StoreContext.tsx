@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { Product, CartItem, Order, Customer, StoreSettings, Coupon, ProductCategory, CategoryItem, Language } from '../types';
 import { api } from '../services/api';
+import { normalizeImageUrl } from '../utils/imageUrl';
 import { INITIAL_COUPONS } from '../data/initialProducts';
 import { translations } from '../utils/translations';
 
@@ -161,7 +162,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<ProductCategory | 'All'>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [settings, setSettings] = useState<StoreSettings>(() => api.getSettings());
+  const [settings, setSettings] = useState<StoreSettings>(() => {
+    const base = api.getSettings();
+    return {
+      ...base,
+      heroSlides: (base.heroSlides || []).map((slide) => ({
+        ...slide,
+        image: normalizeImageUrl(slide.image),
+      })),
+    };
+  });
   
   const [trackingOrderId, setTrackingOrderId] = useState('');
   const [isTrackingOpen, setIsTrackingOpen] = useState(false);
@@ -402,9 +412,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const updateSettings = (newSettings: StoreSettings) => {
-    setSettings(newSettings);
-    api.saveSettings(newSettings);
-    showToast('Store settings saved successfully');
+    const normalized = {
+      ...newSettings,
+      heroSlides: (newSettings.heroSlides || []).map((slide) => ({
+        ...slide,
+        image: normalizeImageUrl(slide.image),
+      })),
+    };
+    setSettings(normalized);
+    api.saveSettings(normalized);
+    showToast(language === 'bn' ? 'সাইটের সেটিংস সংরক্ষণ হয়েছে' : 'Store settings saved successfully');
   };
 
   const loginAdmin = (user: string, pass: string): boolean => {
