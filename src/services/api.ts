@@ -694,6 +694,40 @@ export const api = {
     }
   },
 
+  async syncAllToSheets(settings: StoreSettings): Promise<boolean> {
+    const url = String(settings.googleAppsScriptUrl || '').trim();
+    if (!url) throw new Error('Google Apps Script URL is not configured.');
+    const payload = {
+      settings: {
+        Store_Name: settings.storeName,
+        Store_Phone: settings.phone,
+        WhatsApp_Number: settings.whatsappNumber,
+        Store_Email: settings.email,
+        Delivery_Charge_Inside: String(settings.deliveryChargeInside),
+        Delivery_Charge_Outside: String(settings.deliveryChargeOutside),
+        Free_Delivery_Threshold: String(settings.freeDeliveryThreshold),
+        Bkash_Number: settings.bkashMerchantNumber,
+        Nagad_Number: settings.nagadMerchantNumber,
+        Currency: settings.currency,
+        Facebook_URL: settings.facebookUrl,
+        Instagram_URL: settings.instagramUrl,
+        Google_Apps_Script_URL: url,
+      },
+      content: settings.content || {},
+      heroSlides: settings.heroSlides || [],
+      faq: settings.content?.faq || [],
+    };
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'syncAll', data: payload }),
+    });
+    if (!response.ok) throw new Error('Google Sheets sync failed: ' + response.status);
+    const json = await response.json();
+    if (!json.success) throw new Error(json.message || 'Google Sheets sync failed');
+    return true;
+  },
+
   // Test live connection to Google Apps Script Web App
   async testGasConnection(gasUrl: string): Promise<{ success: boolean; message: string }> {
     if (!gasUrl || !gasUrl.startsWith('http')) {
