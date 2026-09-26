@@ -669,23 +669,27 @@ export const api = {
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            action: 'updateSettings',
+            action: 'syncAll',
             data: {
-              Store_Name: settings.storeName,
-              Store_Phone: settings.phone,
-              WhatsApp_Number: settings.whatsappNumber,
-              Store_Email: settings.email,
-              Delivery_Charge_Inside: String(settings.deliveryChargeInside),
-              Delivery_Charge_Outside: String(settings.deliveryChargeOutside),
-              Free_Delivery_Threshold: String(settings.freeDeliveryThreshold),
-              Bkash_Number: settings.bkashMerchantNumber,
-              Nagad_Number: settings.nagadMerchantNumber,
-              Currency: settings.currency,
+              settings: {
+                Store_Name: settings.storeName,
+                Store_Phone: settings.phone,
+                WhatsApp_Number: settings.whatsappNumber,
+                Store_Email: settings.email,
+                Delivery_Charge_Inside: String(settings.deliveryChargeInside),
+                Delivery_Charge_Outside: String(settings.deliveryChargeOutside),
+                Free_Delivery_Threshold: String(settings.freeDeliveryThreshold),
+                Bkash_Number: settings.bkashMerchantNumber,
+                Nagad_Number: settings.nagadMerchantNumber,
+                Currency: settings.currency,
+              },
+              content: settings.content || {},
+              faq: settings.content?.faq || [],
             },
           }),
-        }).catch((e) => console.warn('Could not post settings to GAS', e));
+        }).catch((e) => console.warn('Could not sync all data to GAS', e));
       } catch (err) {
-        console.warn('Error saving settings to GAS:', err);
+        console.warn('Error syncing data to GAS:', err);
       }
     }
   },
