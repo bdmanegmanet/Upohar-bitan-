@@ -17,6 +17,7 @@ export const CartDrawer: React.FC = () => {
     removeCoupon,
     coupons,
     setIsCheckoutOpen,
+    setCurrentPage,
     settings,
   } = useStore();
 
@@ -56,6 +57,7 @@ export const CartDrawer: React.FC = () => {
 
   const handleProceedToCheckout = () => {
     setIsCartOpen(false);
+    setCurrentPage('checkout');
     setIsCheckoutOpen(true);
   };
 
