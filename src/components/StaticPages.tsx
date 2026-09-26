@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { ShieldCheck, Truck, RotateCcw, HelpCircle, ArrowLeft, MapPin, Phone, Mail, MessageCircle, ExternalLink, Heart, CheckCircle2, Award } from 'lucide-react';
+import { ShieldCheck, Truck, RotateCcw, HelpCircle, ArrowLeft, MapPin, Phone, Mail, MessageCircle, ExternalLink, Heart, CheckCircle2, Award, Facebook } from 'lucide-react';
 
 export const AboutUsPage: React.FC = () => {
   const { setCurrentPage, settings, language, t } = useStore();
@@ -146,9 +146,11 @@ export const AboutUsPage: React.FC = () => {
                     href="https://www.facebook.com/share/19ga8RpbsZ/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-700 hover:underline font-medium break-all"
+                    aria-label="Facebook Page"
+                    title="Facebook Page"
+                    className="social-icon-btn !w-9 !h-9 !text-blue-600 hover:!text-blue-700"
                   >
-                    facebook.com/share/19ga8RpbsZ/
+                    <Facebook className="w-4 h-4" />
                   </a>
                 </div>
               </div>
