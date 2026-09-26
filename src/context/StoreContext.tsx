@@ -361,7 +361,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }]);
     setAppliedCoupon(null);
     setIsCartOpen(false);
-    setIsCheckoutOpen(false);
+    setIsCheckoutOpen(true);
     setCurrentPage('checkout');
   };
 
