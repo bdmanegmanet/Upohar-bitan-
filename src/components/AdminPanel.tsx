@@ -35,6 +35,38 @@ import {
   Shield,
 } from 'lucide-react';
 
+
+const FAQManager: React.FC = () => {
+  const { settings, updateSettings, language } = useStore();
+  const faq = settings.content?.faq || [];
+  const setFaq = (next: any[]) => updateSettings({...settings, content: {...settings.content!, faq: next}});
+  return (
+    <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-5">
+      <div>
+        <h3 className="font-display text-xl font-semibold">সাধারণ প্রশ্নোত্তর (FAQ)</h3>
+        <p className="text-xs text-stone-500 mt-1">এখান থেকে FAQ যোগ, সম্পাদনা, সক্রিয়/নিষ্ক্রিয় ও মুছে ফেলতে পারবেন। পরিবর্তন Google Sheets-এ sync হবে।</p>
+      </div>
+      <div className="space-y-4">
+        {faq.map((item, index) => (
+          <div key={item.id} className="p-4 rounded-xl bg-[#FAF8F5] border border-stone-200 space-y-2">
+            <div className="grid sm:grid-cols-2 gap-2">
+              <input value={item.questionBn || ''} onChange={e=>setFaq(faq.map(x=>x.id===item.id?{...x,questionBn:e.target.value}:x))} placeholder="বাংলা প্রশ্ন" className="px-3 py-2 text-xs bg-white border rounded-lg" />
+              <input value={item.questionEn || ''} onChange={e=>setFaq(faq.map(x=>x.id===item.id?{...x,questionEn:e.target.value}:x))} placeholder="English question" className="px-3 py-2 text-xs bg-white border rounded-lg" />
+              <textarea value={item.answerBn || ''} onChange={e=>setFaq(faq.map(x=>x.id===item.id?{...x,answerBn:e.target.value}:x))} placeholder="বাংলা উত্তর" className="px-3 py-2 text-xs bg-white border rounded-lg min-h-20" />
+              <textarea value={item.answerEn || ''} onChange={e=>setFaq(faq.map(x=>x.id===item.id?{...x,answerEn:e.target.value}:x))} placeholder="English answer" className="px-3 py-2 text-xs bg-white border rounded-lg min-h-20" />
+            </div>
+            <div className="flex items-center justify-between">
+              <label className="text-xs flex items-center gap-2"><input type="checkbox" checked={item.active !== false} onChange={e=>setFaq(faq.map(x=>x.id===item.id?{...x,active:e.target.checked}:x))}/> সক্রিয়</label>
+              <button type="button" onClick={()=>setFaq(faq.filter(x=>x.id!==item.id))} className="text-xs text-rose-700 px-3 py-1.5 bg-rose-50 rounded-lg">মুছে ফেলুন</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button type="button" onClick={()=>setFaq([...faq,{id:'FAQ-'+Date.now(),questionBn:'',answerBn:'',questionEn:'',answerEn:'',active:true,sortOrder:faq.length+1}])} className="px-4 py-2.5 text-xs font-semibold bg-stone-900 text-white rounded-lg">+ নতুন FAQ</button>
+    </div>
+  );
+};
+
 export const AdminPanel: React.FC = () => {
   const {
     products,
@@ -924,6 +956,7 @@ export const AdminPanel: React.FC = () => {
       {activeTab === 'settings' && (
         <div className="space-y-6 max-w-5xl">
           <HomepageSliderManager />
+          <FAQManager />
           <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-6 max-w-4xl">
           <div className="border-b border-stone-200 pb-3">
             <h3 className="font-display text-xl font-semibold text-stone-900">
