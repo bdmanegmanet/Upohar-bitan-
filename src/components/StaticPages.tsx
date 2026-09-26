@@ -189,7 +189,8 @@ export const FAQPage: React.FC = () => {
   const { setCurrentPage, language } = useStore();
   const isBn = language === 'bn';
 
-  const faqs = isBn ? [
+  const remoteFaqs = settings?.content?.faq || [];
+  const faqs = remoteFaqs.length ? remoteFaqs.filter((f) => f.active !== false).map((f) => ({ q: isBn ? f.questionBn : (f.questionEn || f.questionBn), a: isBn ? f.answerBn : (f.answerEn || f.answerBn) })) : (isBn ? [
     { q: 'ভঙ্গুর ক্রোকারিজ পরিবহনের সময় ভেঙে যাওয়া কীভাবে রোধ করা হয়?', a: 'প্রতিটি পণ্য আলাদাভাবে সুরক্ষিত ফোম ও এয়ার-কুশন দিয়ে প্যাক করা হয় এবং শক্ত কার্টনে পাঠানো হয়। পরিবহনে ক্ষতি হলে দ্রুত সমাধানের ব্যবস্থা করা হয়।' },
     { q: '২৪ ক্যারেট গোল্ড রিমের পণ্য কি মাইক্রোওয়েভ ও ডিশওয়াশারে ব্যবহার করা যাবে?', a: 'আসল সোনার রিমযুক্ত পণ্য মাইক্রোওয়েভে ব্যবহার করা যাবে না। দীর্ঘদিনের সৌন্দর্য ধরে রাখতে হাতে ধোয়া সবচেয়ে নিরাপদ।' },
     { q: 'কোন কোন পেমেন্ট পদ্ধতি গ্রহণ করা হয়?', a: 'ক্যাশ অন ডেলিভারি, বিকাশ, নগদ এবং ব্যাংক পেমেন্ট গ্রহণ করা হয়।' },
@@ -216,7 +217,7 @@ export const FAQPage: React.FC = () => {
       q: 'Can I purchase single plates to replace a broken piece from my set?',
       a: 'Yes! We maintain open-stock availability for all our major collections including Aurum, Nordic Slate, and Kyoto. You can order individual replacement plates or bowls directly through our website.',
     },
-  ];
+  ]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
