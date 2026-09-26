@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ArrowLeft, CheckCircle2, Lock, Truck } from 'lucide-react';
 import { CheckoutModal } from './CheckoutModal';
 import { useStore } from '../context/StoreContext';
 
 export const CheckoutPage: React.FC = () => {
-  const { setCurrentPage, cart, language } = useStore();
-  const [showForm, setShowForm] = useState(false);
+  const { setCurrentPage, cart, language, setIsCheckoutOpen } = useStore();
   const isBn = language === 'bn';
 
   return (
@@ -26,12 +25,13 @@ export const CheckoutPage: React.FC = () => {
             {isBn ? 'আপনার নাম, মোবাইল, ঠিকানা ও পেমেন্ট তথ্য দিয়ে অর্ডারটি নিশ্চিত করুন।' : 'Enter your contact, delivery and payment information to confirm your order.'}
           </p>
 
-          {!showForm && (
-            <button onClick={() => setShowForm(true)} disabled={!cart.length} className="mt-8 w-full sm:w-auto px-7 py-3.5 rounded-xl bg-stone-900 text-white font-semibold text-sm shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-40">
-              {isBn ? 'তথ্য দিয়ে অর্ডার করুন →' : 'Continue to order →'}
-            </button>
-          )}
-          {showForm && <CheckoutModal />}
+          <div className="mt-8">
+            {cart.length ? <CheckoutModal fullPage /> : (
+              <button onClick={() => { setIsCheckoutOpen(false); setCurrentPage('shop'); }} className="px-6 py-3 rounded-xl bg-stone-900 text-white text-sm font-semibold">
+                {isBn ? 'পণ্য বেছে নিন' : 'Choose products'}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="bg-[#F7F1E1] rounded-2xl border border-[#EDE0C2] p-6">
