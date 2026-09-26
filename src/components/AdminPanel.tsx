@@ -1112,8 +1112,6 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-        </div>
-      )}
 
       {/* TAB 6: GOOGLE APPS SCRIPT BACKEND (CODE.GS) */}
       {activeTab === 'codegs' && (
