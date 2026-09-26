@@ -706,9 +706,10 @@ export const api = {
     }
   },
 
-  async syncAllToSheets(settings: StoreSettings): Promise<boolean> {
+  async syncAllToSheets(settings: StoreSettings): Promise<{success:boolean; message:string; syncedAt:string}> {
     const url = String(settings.googleAppsScriptUrl || '').trim();
     if (!url) throw new Error('Google Apps Script URL is not configured.');
+
     const payload = {
       settings: {
         Store_Name: settings.storeName,
@@ -728,16 +729,21 @@ export const api = {
       content: settings.content || {},
       heroSlides: settings.heroSlides || [],
       faq: settings.content?.faq || [],
+      coupons: this.getCoupons(),
     };
+
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify({ action: 'syncAll', data: payload }),
     });
-    if (!response.ok) throw new Error('Google Sheets sync failed: ' + response.status);
+    if (!response.ok) throw new Error('HTTP ' + response.status + ': Google Sheets sync failed');
+
     const json = await response.json();
     if (!json.success) throw new Error(json.message || 'Google Sheets sync failed');
-    return true;
+
+    const syncedAt = String(json.timestamp || new Date().toISOString());
+    return { success: true, message: json.message || 'All data synchronized', syncedAt };
   },
 
   // Test live connection to Google Apps Script Web App
