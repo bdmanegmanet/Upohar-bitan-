@@ -1,0 +1,137 @@
+import React, { useMemo, useState } from 'react';
+import { Plus, Save, RefreshCw, Trash2, UploadCloud, Database } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
+import { api } from '../services/api';
+import { FAQItem } from '../types';
+
+export const ContentFaqManager: React.FC = () => {
+  const { settings, updateSettings, refreshAllData, language, showToast } = useStore();
+  const isBn = language === 'bn';
+  const content = settings.content || { aboutBn:'', aboutEn:'', deliveryBn:'', deliveryEn:'', returnsBn:'', returnsEn:'', faq:[] };
+  const [draft, setDraft] = useState(content);
+  const [busy, setBusy] = useState(false);
+
+  React.useEffect(() => setDraft(content), [content]);
+
+  const save = async () => {
+    setBusy(true);
+    try {
+      updateSettings({ ...settings, content: draft });
+      await api.syncAllToSheets({ ...settings, content: draft });
+      showToast(isBn ? 'কনটেন্ট ও FAQ Google Sheets-এ সংরক্ষণ হয়েছে' : 'Content and FAQ saved to Google Sheets');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const pull = async () => {
+    setBusy(true);
+    try {
+      await refreshAllData();
+      showToast(isBn ? 'Google Sheets থেকে সর্বশেষ তথ্য আনা হয়েছে' : 'Latest data pulled from Google Sheets');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const updateFaq = (id: string, patch: Partial<FAQItem>) =>
+    setDraft((d) => ({ ...d, faq: (d.faq || []).map((f) => f.id === id ? { ...f, ...patch } : f) }));
+
+  const addFaq = () =>
+    setDraft((d) => ({
+      ...d,
+      faq: [...(d.faq || []), {
+        id: 'FAQ-' + Date.now(),
+        questionBn: 'নতুন প্রশ্ন',
+        answerBn: 'নতুন উত্তরের লেখা',
+        questionEn: 'New question',
+        answerEn: 'New answer',
+        active: true,
+        sortOrder: (d.faq || []).length + 1,
+      }],
+    }));
+
+  const removeFaq = (id: string) =>
+    setDraft((d) => ({ ...d, faq: (d.faq || []).filter((f) => f.id !== id) }));
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div>
+            <h3 className="font-display text-xl font-semibold text-stone-900">দোকান পরিচিতি ও নীতিমালা</h3>
+            <p className="text-xs text-stone-500 mt-1">বাংলা ও English—দুই ভাষার কনটেন্ট এখান থেকেই নিয়ন্ত্রণ করুন।</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={pull} disabled={busy} className="px-3 py-2 rounded-lg border border-stone-300 text-xs flex items-center gap-1.5">
+              <RefreshCw className="w-3.5 h-3.5" /> Sheets থেকে Sync
+            </button>
+            <button onClick={save} disabled={busy} className="px-3 py-2 rounded-lg bg-stone-900 text-white text-xs flex items-center gap-1.5">
+              <UploadCloud className="w-3.5 h-3.5" /> Sheets-এ Push
+            </button>
+          </div>
+        </div>
+
+        {[
+          ['aboutBn','aboutEn','আমাদের সম্পর্কে / দোকান পরিচিতি','About / Store Introduction'],
+          ['deliveryBn','deliveryEn','ডেলিভারি সংক্রান্ত তথ্য','Delivery Information'],
+          ['returnsBn','returnsEn','রিটার্ন ও রিপ্লেসমেন্ট পলিসি','Return & Replacement Policy'],
+        ].map(([bnKey,enKey,bnLabel,enLabel]) => (
+          <div key={bnKey} className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 mb-3 rounded-xl bg-[#FAF8F5] border border-stone-200">
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">{bnLabel}</label>
+              <textarea rows={5} value={(draft as any)[bnKey]} onChange={(e) => setDraft({ ...draft, [(bnKey as string)]: e.target.value })} className="w-full p-3 text-xs border border-stone-300 rounded-lg bg-white" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">{enLabel}</label>
+              <textarea rows={5} value={(draft as any)[enKey]} onChange={(e) => setDraft({ ...draft, [(enKey as string)]: e.target.value })} className="w-full p-3 text-xs border border-stone-300 rounded-lg bg-white" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div>
+            <h3 className="font-display text-xl font-semibold text-stone-900">FAQ Manager</h3>
+            <p className="text-xs text-stone-500 mt-1">FAQ যোগ, সম্পাদনা, সক্রিয়/নিষ্ক্রিয় এবং Google Sheets sync করুন।</p>
+          </div>
+          <button onClick={addFaq} className="px-3 py-2 rounded-lg bg-[#A37835] text-white text-xs flex items-center gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> FAQ যোগ করুন
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {(draft.faq || []).map((faq) => (
+            <div key={faq.id} className="p-4 rounded-xl border border-stone-200 bg-[#FAF8F5]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <input value={faq.questionBn} onChange={(e) => updateFaq(faq.id, { questionBn: e.target.value })} placeholder="বাংলা প্রশ্ন" className="p-2.5 text-xs border rounded-lg bg-white" />
+                <input value={faq.questionEn || ''} onChange={(e) => updateFaq(faq.id, { questionEn: e.target.value })} placeholder="English question" className="p-2.5 text-xs border rounded-lg bg-white" />
+                <textarea rows={3} value={faq.answerBn} onChange={(e) => updateFaq(faq.id, { answerBn: e.target.value })} placeholder="বাংলা উত্তর" className="p-2.5 text-xs border rounded-lg bg-white" />
+                <textarea rows={3} value={faq.answerEn || ''} onChange={(e) => updateFaq(faq.id, { answerEn: e.target.value })} placeholder="English answer" className="p-2.5 text-xs border rounded-lg bg-white" />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <label className="text-xs flex items-center gap-2">
+                  <input type="checkbox" checked={faq.active !== false} onChange={(e) => updateFaq(faq.id, { active: e.target.checked })} />
+                  FAQ চালু
+                </label>
+                <button onClick={() => removeFaq(faq.id)} className="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-700 text-xs flex items-center gap-1">
+                  <Trash2 className="w-3.5 h-3.5" /> মুছুন
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={save} disabled={busy} className="mt-5 w-full py-3 rounded-xl bg-stone-900 text-white text-sm font-semibold flex items-center justify-center gap-2">
+          <Save className="w-4 h-4" /> {busy ? 'Sync হচ্ছে…' : 'সব কনটেন্ট ও FAQ সংরক্ষণ + Sync'}
+        </button>
+      </div>
+
+      <div className="p-4 rounded-xl bg-[#F7F1E1] border border-[#EDE0C2] text-xs text-stone-700 flex gap-2">
+        <Database className="w-4 h-4 text-[#A37835] shrink-0" />
+        <span>Google Apps Script-এর <b>Content</b> ও <b>FAQ</b> sheet-এ তথ্য সংরক্ষিত হবে। Admin থেকে Push এবং Sheets থেকে Pull—দুই দিকেই sync করা যাবে।</span>
+      </div>
+    </div>
+  );
+};
