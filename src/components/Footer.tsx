@@ -81,15 +81,17 @@ export const Footer: React.FC = () => {
                 </a>
               </div>
               <div className="flex items-center gap-2 pt-1">
-                <ExternalLink className="w-4 h-4 text-blue-400 shrink-0" />
                 <a
-                  href="https://www.facebook.com/share/19ga8RpbsZ/"
+                  href={settings.facebookUrl || 'https://www.facebook.com/share/19ga8RpbsZ/'}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-400 hover:text-blue-300 transition-colors font-medium hover:underline"
+                  aria-label="Facebook Page"
+                  title="Facebook Page"
+                  className="social-icon-btn !bg-stone-900 !border-stone-700 !text-blue-400 hover:!text-blue-300"
                 >
-                  ফেসবুক পেজ (Facebook)
+                  <Facebook className="w-4 h-4" />
                 </a>
+                <span className="text-[11px] text-stone-500">Facebook Page</span>
               </div>
             </div>
           </div>
@@ -193,12 +195,14 @@ export const Footer: React.FC = () => {
             </button>
             <span aria-hidden="true">·</span>
             <a
-              href="https://www.facebook.com/share/19ga8RpbsZ/"
+              href={settings.facebookUrl || 'https://www.facebook.com/share/19ga8RpbsZ/'}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#DFB15B] hover:underline"
+              aria-label="Facebook Page"
+              title="Facebook Page"
+              className="social-icon-btn !w-7 !h-7 !bg-stone-900 !border-stone-700 !text-[#DFB15B] hover:!text-white"
             >
-              Facebook: উপহার বিতান
+              <Facebook className="w-3.5 h-3.5" />
             </a>
           </div>
         </div>
