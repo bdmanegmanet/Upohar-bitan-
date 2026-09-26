@@ -456,7 +456,16 @@ export const AdminPanel: React.FC = () => {
             className="px-3.5 py-2 text-xs font-medium text-stone-700 bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            <span>Sync Sheets</span>
+            <span>Google Sheets থেকে Sync</span>
+          </button>
+
+          <button
+            onClick={() => refreshAllData()}
+            disabled={isRefreshing}
+            className="px-3.5 py-2 text-xs font-medium text-white bg-[#A37835] hover:bg-[#8A612D] rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <span>সব তথ্য Sync</span>
           </button>
 
           <button
