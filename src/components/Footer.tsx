@@ -49,7 +49,6 @@ export const Footer: React.FC = () => {
               <a href="tel:01712470028" aria-label="Call" className="social-icon-btn social-phone !bg-stone-900 !border-stone-700">
                 <Phone className="w-4 h-4" />
               </a>
-              <span className="text-[11px] text-stone-500 ml-1">সরাসরি যোগাযোগ</span>
             </div>
 
             <div className="space-y-2 text-stone-300 pt-1 text-[11px]">
@@ -79,19 +78,6 @@ export const Footer: React.FC = () => {
                 <a href="mailto:upoharb@gmail.com" className="hover:text-white transition-colors">
                   upoharb@gmail.com
                 </a>
-              </div>
-              <div className="flex items-center gap-2 pt-1">
-                <a
-                  href={settings.facebookUrl || 'https://www.facebook.com/share/19ga8RpbsZ/'}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Facebook Page"
-                  title="Facebook Page"
-                  className="social-icon-btn !bg-stone-900 !border-stone-700 !text-blue-400 hover:!text-blue-300"
-                >
-                  <Facebook className="w-4 h-4" />
-                </a>
-                <span className="text-[11px] text-stone-500">Facebook Page</span>
               </div>
             </div>
           </div>
