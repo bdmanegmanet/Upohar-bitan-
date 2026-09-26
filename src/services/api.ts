@@ -35,8 +35,13 @@ function initStorage() {
   } else {
     try {
       const parsed = JSON.parse(storedSettings);
-      if (parsed.email !== INITIAL_SETTINGS.email || parsed.storeName !== INITIAL_SETTINGS.storeName) {
-        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify({ ...parsed, ...INITIAL_SETTINGS }));
+      // Preserve user/admin settings. Only fill fields that are missing from older versions.
+      const merged = { ...INITIAL_SETTINGS, ...parsed };
+      const needsRepair = Object.keys(INITIAL_SETTINGS).some(
+        (key) => !(key in parsed)
+      );
+      if (needsRepair) {
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(merged));
       }
     } catch {
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(INITIAL_SETTINGS));
@@ -422,7 +427,11 @@ export const api = {
 
   async createOrder(orderInput: Omit<Order, 'id' | 'orderDate' | 'orderStatus'>): Promise<Order> {
     const orders = await this.getOrders();
-    const orderId = `ORD-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const year = new Date().getFullYear();
+    let orderId = '';
+    do {
+      orderId = `ORD-${year}-${Math.floor(1000 + Math.random() * 9000)}`;
+    } while (orders.some((order) => order.id === orderId));
     const newOrder: Order = {
       ...orderInput,
       id: orderId,
