@@ -147,8 +147,9 @@ export const Navbar: React.FC = () => {
       {/* Top Banner Notice */}
       <div className="relative overflow-hidden bg-[#1C1917] text-[#EDE0C2] text-xs py-2 px-4 border-b border-[#BE9346]/20 animate-banner-in">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-          <div className="truncate text-center w-full sm:text-left sm:w-auto font-medium tracking-wide animate-banner-text">
-            {settings.bannerNotice || '✨ উপহার বিতান - নীলফামারীর বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান | কল বা WhatsApp: 01712470028'}
+          <div className="text-center w-full sm:text-left sm:w-auto font-medium tracking-wide min-w-0 animate-banner-text">
+            <span className="hidden sm:inline">{settings.bannerNotice || '✨ উপহার বিতান - নীলফামারীর বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান | কল বা WhatsApp: 01712470028'}</span>
+            <span className="sm:hidden whitespace-nowrap">{isBn ? '✨ উপহার বিতান · কল / WhatsApp: 01712470028' : '✨ Upohar Bitan · Call / WhatsApp: 01712470028'}</span>
           </div>
           <div className="hidden sm:flex items-center gap-4 text-stone-300 text-xs shrink-0">
             <a
