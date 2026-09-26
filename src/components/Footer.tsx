@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Package, ShieldCheck, Heart, Phone, Mail, MapPin, MessageCircle, ExternalLink, Facebook } from 'lucide-react';
+import { Package, ShieldCheck, Heart, Phone, Mail, MapPin, MessageCircle, ExternalLink, Facebook, Shield } from 'lucide-react';
 import { ProductCategory } from '../types';
 
 export const Footer: React.FC = () => {

@@ -19,6 +19,7 @@ export const CartDrawer: React.FC = () => {
     setIsCheckoutOpen,
     setCurrentPage,
     settings,
+    language,
   } = useStore();
 
   const [couponInput, setCouponInput] = useState('');
@@ -281,10 +282,10 @@ export const CartDrawer: React.FC = () => {
             <div className="space-y-2">
               <button
                 onClick={handleProceedToCheckout}
-                className="w-full py-3.5 px-4 text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-4 px-4 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-stone-900 via-[#7B531F] to-stone-900 hover:from-black hover:via-[#5F3E18] hover:to-black rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer border border-[#BE9346]/40 animate-btn-pulse btn-shimmer-effect"
               >
-                <span>Proceed to Checkout</span>
-                <ArrowRight className="w-4 h-4 text-[#EDE0C2]" />
+                <span>{language === 'bn' ? `অর্ডার করুন · মোট ৳${finalTotal.toLocaleString()}` : `Proceed to Checkout · ৳${finalTotal.toLocaleString()}`}</span>
+                <ArrowRight className="w-4 h-4 text-amber-300" />
               </button>
 
               <div className="flex items-center justify-center gap-1.5 text-[11px] text-stone-500 pt-1">

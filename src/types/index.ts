@@ -112,13 +112,14 @@ export interface FAQItem {
 }
 
 export interface StoreContent {
-  aboutBn: string;
-  aboutEn: string;
-  deliveryBn: string;
-  deliveryEn: string;
-  returnsBn: string;
-  returnsEn: string;
-  faq: FAQItem[];
+  aboutBn?: string;
+  aboutEn?: string;
+  deliveryBn?: string;
+  deliveryEn?: string;
+  returnsBn?: string;
+  returnsEn?: string;
+  faq?: FAQItem[];
+  heroSlides?: HeroSlide[];
 }
 
 export interface StoreSettings {
@@ -139,6 +140,7 @@ export interface StoreSettings {
   facebookUrl: string;
   instagramUrl: string;
   googleAppsScriptUrl: string;
+  googleSheetsUrl?: string;
   bannerNotice: string;
   heroSlides?: HeroSlide[];
   content?: StoreContent;
@@ -167,6 +169,7 @@ export interface Coupon {
   discountAmount?: number;
   minimumOrder: number;
   description: string;
+  active?: boolean;
 }
 
 export interface CustomerReview {

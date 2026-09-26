@@ -36,7 +36,14 @@ const AppContent: React.FC = () => {
   const [bootReady, setBootReady] = React.useState(false);
 
   React.useEffect(() => {
-    const timer = window.setTimeout(() => setBootReady(true), 8000);
+    if (!isLoading) {
+      const timer = window.setTimeout(() => setBootReady(true), 800);
+      return () => window.clearTimeout(timer);
+    }
+  }, [isLoading]);
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setBootReady(true), 2500);
     return () => window.clearTimeout(timer);
   }, []);
 
@@ -44,17 +51,32 @@ const AppContent: React.FC = () => {
     return <LoadingScreen storeName={settings.storeName || 'উপহার বিতান'} />;
   }
 
+  // Dedicated Admin Console Page
+  if (currentPage === 'admin') {
+    return (
+      <div className="min-h-screen bg-[#FAF8F5]">
+        <AdminPanel />
+        {toastMessage && (
+          <div className="fixed bottom-6 right-6 z-50 bg-stone-900 text-stone-100 text-xs py-2.5 px-4 rounded-xl shadow-xl border border-stone-700 animate-slide-up flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#BE9346]" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
+    <div className="min-h-screen flex flex-col bg-[#FAF8F5] overflow-x-hidden w-full max-w-full">
       {/* Top Navbar */}
       <Navbar />
 
       {/* Main Page Content */}
-      <main className="flex-1">
+      <main className="flex-1 pb-16 lg:pb-0 w-full max-w-full overflow-x-hidden">
         {currentPage === 'home' && (
           <>
-            <Hero />
             <HeroSlider />
+            <Hero />
             <CategoryShowcase />
             <FeaturedSection />
             <CraftsmanshipStory />
@@ -69,8 +91,6 @@ const AppContent: React.FC = () => {
         {currentPage === 'wishlist' && <WishlistView />}
 
         {currentPage === 'checkout' && <CheckoutPage />}
-
-        {currentPage === 'admin' && <AdminPanel />}
 
         {currentPage === 'about' && <AboutUsPage />}
 

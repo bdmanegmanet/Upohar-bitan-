@@ -4,6 +4,9 @@ import { api } from '../services/api';
 import { Product, Order, Customer, OrderStatus, ProductCategory, ProductSubCategory } from '../types';
 import { CODE_GS_SOURCE } from '../data/codeGsContent';
 import { CategoryManager } from './CategoryManager';
+import { HomepageSliderManager } from './HomepageSliderManager';
+import { ContentFaqManager } from './ContentFaqManager';
+import { CouponManager } from './CouponManager';
 import { normalizeImageList, normalizeImageUrl } from '../utils/imageUrl';
 import {
   LayoutDashboard,
@@ -32,6 +35,8 @@ import {
   Layers,
   ArrowRight,
   Shield,
+  Tag,
+  FileSpreadsheet,
 } from 'lucide-react';
 
 const FAQManager: React.FC = () => {
@@ -75,6 +80,7 @@ export const AdminPanel: React.FC = () => {
     refreshProducts,
     categories,
     addCategory,
+    coupons,
     settings,
     updateSettings,
     isAdminLoggedIn,
@@ -90,7 +96,7 @@ export const AdminPanel: React.FC = () => {
   const [loginError, setLoginError] = useState('');
 
   // Active tab
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'categories' | 'orders' | 'customers' | 'settings' | 'codegs'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'categories' | 'coupons' | 'orders' | 'customers' | 'settings' | 'codegs'>('dashboard');
 
   // Orders & Customers data
   const [orders, setOrders] = useState<Order[]>([]);
@@ -451,7 +457,19 @@ export const AdminPanel: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            href={settings.googleSheetsUrl || 'https://docs.google.com/spreadsheets/d/1N0jsosWpH5kReLLK_KWuIxN6jXlL0QthUMCbz-S5F7I/edit?usp=sharing'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-3 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            title="Open Google Sheets in new tab"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-emerald-600" />
+            <span>Google Sheets</span>
+            <ExternalLink className="w-3 h-3 text-emerald-500" />
+          </a>
+
           <button
             onClick={loadAdminData}
             disabled={isRefreshing}
@@ -464,7 +482,7 @@ export const AdminPanel: React.FC = () => {
             onClick={() => updateSettings(settings)}
             className="px-3.5 py-2 text-xs font-medium text-white bg-[#A37835] hover:bg-[#8A612D] rounded-lg transition-colors cursor-pointer"
           >
-            Sheets-এ সব তথ্য Push
+            Sheets-এ Push
           </button>
 
           <button
@@ -490,7 +508,8 @@ export const AdminPanel: React.FC = () => {
         {[
           { id: 'dashboard', label: 'Dashboard Overview', icon: LayoutDashboard },
           { id: 'products', label: `Products (${products.length})`, icon: Package },
-          { id: 'categories', label: `Categories & Subcategories (${categories.length})`, icon: Layers },
+          { id: 'categories', label: `Categories (${categories.length})`, icon: Layers },
+          { id: 'coupons', label: `Coupons & Discounts (${coupons.length})`, icon: Tag },
           { id: 'orders', label: `Orders (${orders.length})`, icon: ShoppingBag },
           { id: 'customers', label: `Customers (${customers.length})`, icon: Users },
           { id: 'settings', label: 'Store Settings', icon: Settings },
@@ -780,6 +799,11 @@ export const AdminPanel: React.FC = () => {
       {/* TAB: CATEGORY & SUBCATEGORY MANAGEMENT */}
       {activeTab === 'categories' && (
         <CategoryManager />
+      )}
+
+      {/* TAB: COUPON & DISCOUNT MANAGEMENT */}
+      {activeTab === 'coupons' && (
+        <CouponManager />
       )}
 
       {/* TAB 3: ORDER MANAGEMENT */}

@@ -13,11 +13,11 @@ export const Hero: React.FC = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#FAF8F5] pt-6 pb-14 lg:py-16 border-b border-stone-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+    <section className="relative overflow-hidden bg-[#FAF8F5] pt-4 pb-10 sm:pt-6 sm:pb-14 lg:py-16 border-b border-stone-200 w-full max-w-full">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center">
           {/* Left Column: Editorial Headline & Actions */}
-          <div className="lg:col-span-6 space-y-6">
+          <div className="lg:col-span-6 space-y-4 sm:space-y-6">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.15em] text-[#A37835]">
               <Sparkles className="w-3.5 h-3.5" />
               <span>
@@ -27,7 +27,7 @@ export const Hero: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 leading-[1.2] text-balance">
+            <h1 className="font-display text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 leading-[1.25] text-balance">
               {isBn
                 ? 'রুচিশীল ক্রোকারিজ ও মনকাড়া গিফট সামগ্রীর নির্ভরযোগ্য প্রতিষ্ঠান'
                 : 'Fine Crockery, Modern Kitchenware & Exquisite Gift Corner'}

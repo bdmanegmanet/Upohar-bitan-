@@ -307,7 +307,7 @@ export const DeliveryInfoPage: React.FC = () => {
 };
 
 export const ReturnPolicyPage: React.FC = () => {
-  const { setCurrentPage, language } = useStore();
+  const { setCurrentPage, language, settings } = useStore();
   const isBn = language === 'bn';
   const returnsText = isBn ? settings.content?.returnsBn : settings.content?.returnsEn;
 

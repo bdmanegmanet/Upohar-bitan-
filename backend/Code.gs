@@ -1,9 +1,26 @@
 /**
- * Aura Tableware & Crockery Store - Google Apps Script Backend (Code.gs)
+ * Upohar Bitan - Google Apps Script Backend (Code.gs)
  * 
- * Provides automated Google Sheets Database creation, REST API web endpoints (doGet/doPost),
- * live order syncing, automated stock management, and settings configuration.
+ * Connected Google Sheets Database URL:
+ * https://docs.google.com/spreadsheets/d/1N0jsosWpH5kReLLK_KWuIxN6jXlL0QthUMCbz-S5F7I/edit?usp=sharing
+ * 
+ * Web App URL:
+ * https://script.google.com/macros/s/AKfycbyeHn7M6aga2tCnG1NiKfszntKkLuk4Bb-Ca8l1jVB3ZeUFYW_FGoQeMYsxyYk7mh-9/exec
  */
+
+var SPREADSHEET_ID = '1N0jsosWpH5kReLLK_KWuIxN6jXlL0QthUMCbz-S5F7I';
+var SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1N0jsosWpH5kReLLK_KWuIxN6jXlL0QthUMCbz-S5F7I/edit?usp=sharing';
+
+function getSpreadsheet() {
+  try {
+    if (SPREADSHEET_ID && SPREADSHEET_ID.trim() !== '') {
+      return SpreadsheetApp.openById(SPREADSHEET_ID.trim());
+    }
+  } catch (err) {
+    Logger.log('Could not open spreadsheet by ID: ' + err);
+  }
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
 
 // Global sheet names
 var SHEETS = {
@@ -14,7 +31,8 @@ var SHEETS = {
   ADMIN: 'Admin',
   CONTENT: 'Content',
   FAQ: 'FAQ',
-  CATEGORIES: 'Categories'
+  CATEGORIES: 'Categories',
+  COUPONS: 'Coupons'
 };
 
 /**
@@ -22,7 +40,7 @@ var SHEETS = {
  * Run this function once from the Apps Script editor to initialize your database!
  */
 function setupDatabase() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet();
 
   // 1. Products Sheet
   var productSheet = getOrCreateSheet(ss, SHEETS.PRODUCTS);
@@ -109,7 +127,18 @@ function setupDatabase() {
     ]);
   }
 
-  // 7. Admin Sheet
+  // 9. Coupons Sheet
+  var couponSheet = getOrCreateSheet(ss, SHEETS.COUPONS);
+  setSheetHeaders(couponSheet, ['Coupon_Code','Discount_Percent','Discount_Amount','Minimum_Order','Description','Active','Updated_At']);
+  if (couponSheet.getLastRow() <= 1) {
+    couponSheet.getRange(2,1,3,7).setValues([
+      ['GOLD10', 10, '', 2000, '10% OFF on orders over ৳2,000', 'TRUE', new Date()],
+      ['AURA20', 20, '', 6000, '20% OFF on luxury orders over ৳6,000', 'TRUE', new Date()],
+      ['WELCOME500', '', 500, 3500, '৳500 OFF on your first purchase above ৳3,500', 'TRUE', new Date()]
+    ]);
+  }
+
+  // 10. Admin Sheet
   var adminSheet = getOrCreateSheet(ss, SHEETS.ADMIN);
   var adminHeaders = ['Username', 'Password', 'Role'];
   setSheetHeaders(adminSheet, adminHeaders);
@@ -129,6 +158,7 @@ function setupDatabase() {
  *   ?action=getProductById&id=PRD-101
  *   ?action=getOrders
  *   ?action=getSettings
+ *   ?action=getCoupons
  */
 function doGet(e) {
   try {
@@ -148,6 +178,9 @@ function doGet(e) {
         break;
       case 'getSettings':
         response = getSettings();
+        break;
+      case 'getCoupons':
+        response = getCoupons();
         break;
       case 'bootstrap':
         response = bootstrap();
@@ -212,6 +245,9 @@ function doPost(e) {
       case 'saveFAQ':
         response = saveFAQ(data);
         break;
+      case 'saveCoupons':
+        response = saveCoupons(data);
+        break;
       case 'syncAll':
         response = syncAll(data);
         break;
@@ -229,7 +265,7 @@ function doPost(e) {
  * Fetch all products from Products sheet
  */
 function getProducts() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found. Run setupDatabase() first.' };
 
   var data = sheet.getDataRange().getValues();
@@ -255,7 +291,7 @@ function getProducts() {
  * Fetch a single product by Product_ID
  */
 function getProductById(id) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
 
   var data = sheet.getDataRange().getValues();
@@ -279,7 +315,7 @@ function getProductById(id) {
  * Add a new product to the Products sheet
  */
 function addProduct(product) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
 
   var newId = product.Product_ID || ('PRD-' + (100 + sheet.getLastRow()));
@@ -312,7 +348,7 @@ function addProduct(product) {
  * Update an existing product
  */
 function updateProduct(product) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
 
   var data = sheet.getDataRange().getValues();
@@ -350,7 +386,7 @@ function updateProduct(product) {
  * Delete a product
  */
 function deleteProduct(id) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
 
   var data = sheet.getDataRange().getValues();
@@ -370,7 +406,7 @@ function deleteProduct(id) {
  * Create a new order, append to Orders and Customers sheets, and auto-decrement product stock!
  */
 function createOrder(order) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = getSpreadsheet();
   var orderSheet = ss.getSheetByName(SHEETS.ORDERS);
   var productSheet = ss.getSheetByName(SHEETS.PRODUCTS);
   var customerSheet = ss.getSheetByName(SHEETS.CUSTOMERS);
@@ -470,7 +506,7 @@ function createOrder(order) {
  * Fetch all orders
  */
 function getOrders() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ORDERS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.ORDERS);
   if (!sheet) return { success: false, message: 'Orders sheet missing' };
 
   var data = sheet.getDataRange().getValues();
@@ -494,7 +530,7 @@ function getOrders() {
  * Update order status (Pending, Confirmed, Processing, Shipping, Delivered, Cancelled)
  */
 function updateOrderStatus(orderId, status) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.ORDERS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.ORDERS);
   if (!sheet) return { success: false, message: 'Orders sheet missing' };
 
   var data = sheet.getDataRange().getValues();
@@ -519,7 +555,7 @@ function updateOrderStatus(orderId, status) {
  * Get Settings
  */
 function getSettings() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SETTINGS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.SETTINGS);
   if (!sheet) return { success: false, message: 'Settings sheet missing' };
 
   var data = sheet.getDataRange().getValues();
@@ -535,7 +571,7 @@ function getSettings() {
  * Update Settings
  */
 function updateSettings(settingsData) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.SETTINGS);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.SETTINGS);
   if (!sheet) return { success: false, message: 'Settings sheet missing' };
 
   var data = sheet.getDataRange().getValues();
@@ -588,12 +624,13 @@ function bootstrap() {
     categories: getCategories().data || [],
     content: getContent().data || {},
     faq: getFAQ().data || [],
-    heroSlides: getHeroSlides().data || []
+    heroSlides: getHeroSlides().data || [],
+    coupons: getCoupons().data || []
   }};
 }
 
 function getCategories() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CATEGORIES);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.CATEGORIES);
   if (!sheet) return { success:true, data:[] };
   var rows = sheet.getDataRange().getValues(), out=[];
   for (var i=1;i<rows.length;i++) {
@@ -610,7 +647,7 @@ function getCategories() {
 }
 
 function getHeroSlides() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTENT);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.CONTENT);
   if (!sheet) return { success:true, data:[] };
   var rows = sheet.getDataRange().getValues();
   for (var i=1;i<rows.length;i++) {
@@ -623,7 +660,7 @@ function getHeroSlides() {
 }
 
 function getContent() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTENT);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.CONTENT);
   if (!sheet) return { success:false, message:'Content sheet missing' };
   var rows = sheet.getDataRange().getValues(); var out = {};
   for (var i=1;i<rows.length;i++) out[String(rows[i][0])] = { bn:String(rows[i][1]||''), en:String(rows[i][2]||'') };
@@ -631,22 +668,63 @@ function getContent() {
 }
 
 function getFAQ() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FAQ);
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.FAQ);
   if (!sheet) return { success:false, message:'FAQ sheet missing' };
   var rows=sheet.getDataRange().getValues(); var out=[];
   for(var i=1;i<rows.length;i++) if(String(rows[i][5]).toLowerCase()!=='false') out.push({id:String(rows[i][0]),questionBn:String(rows[i][1]),answerBn:String(rows[i][2]),questionEn:String(rows[i][3]),answerEn:String(rows[i][4]),active:true,sortOrder:Number(rows[i][6])||i});
   out.sort(function(a,b){return a.sortOrder-b.sortOrder;}); return {success:true,data:out};
 }
 
+function getCoupons() {
+  var sheet = getSpreadsheet().getSheetByName(SHEETS.COUPONS);
+  if (!sheet) return { success: true, data: [] };
+  var rows = sheet.getDataRange().getValues(), out = [];
+  for (var i = 1; i < rows.length; i++) {
+    if (!rows[i][0]) continue;
+    out.push({
+      code: String(rows[i][0]).toUpperCase(),
+      discountPercent: rows[i][1] ? Number(rows[i][1]) : undefined,
+      discountAmount: rows[i][2] ? Number(rows[i][2]) : undefined,
+      minimumOrder: Number(rows[i][3]) || 0,
+      description: String(rows[i][4] || ''),
+      active: String(rows[i][5]).toLowerCase() !== 'false'
+    });
+  }
+  return { success: true, data: out };
+}
+
+function saveCoupons(couponsList) {
+  var sheet = getOrCreateSheet(getSpreadsheet(), SHEETS.COUPONS);
+  if (sheet.getLastRow() > 1) {
+    sheet.getRange(2, 1, sheet.getLastRow() - 1, 7).clearContent();
+  }
+  var list = Array.isArray(couponsList) ? couponsList : [];
+  if (list.length > 0) {
+    var rows = list.map(function(c) {
+      return [
+        String(c.code || '').toUpperCase(),
+        c.discountPercent || '',
+        c.discountAmount || '',
+        c.minimumOrder || 0,
+        c.description || '',
+        c.active !== false ? 'TRUE' : 'FALSE',
+        new Date()
+      ];
+    });
+    sheet.getRange(2, 1, rows.length, 7).setValues(rows);
+  }
+  return { success: true, message: 'Coupons synced to sheet', data: list };
+}
+
 function updateContent(data) {
-  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTENT); if(!sheet) return {success:false,message:'Content sheet missing'};
+  var sheet=getSpreadsheet().getSheetByName(SHEETS.CONTENT); if(!sheet) return {success:false,message:'Content sheet missing'};
   var rows=sheet.getDataRange().getValues(), index={}; for(var i=1;i<rows.length;i++) index[String(rows[i][0])]=i+1;
   for(var key in data){ var value=data[key]||{}; if(index[key]) sheet.getRange(index[key],2,1,3).setValues([[value.bn||'',value.en||'',new Date()]]); else sheet.appendRow([key,value.bn||'',value.en||'',new Date()]); }
   return {success:true,message:'Content synced'};
 }
 
 function saveFAQ(data) {
-  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FAQ); if(!sheet) return {success:false,message:'FAQ sheet missing'};
+  var sheet=getSpreadsheet().getSheetByName(SHEETS.FAQ); if(!sheet) return {success:false,message:'FAQ sheet missing'};
   var rows=Array.isArray(data)?data:(data.items||[]); if(!rows.length) return {success:false,message:'No FAQ data'};
   if(sheet.getLastRow()>1) sheet.getRange(2,1,sheet.getLastRow()-1,8).clearContent();
   var values=rows.map(function(f,i){return [f.id||('FAQ-'+(i+1)),f.questionBn||'',f.answerBn||'',f.questionEn||'',f.answerEn||'',f.active!==false?'TRUE':'FALSE',Number(f.sortOrder)||i+1,new Date()];});
@@ -658,6 +736,7 @@ function syncAll(data) {
   if(data && data.settings) updateSettings(data.settings);
   if(data && data.content) updateContent(data.content);
   if(data && data.faq) saveFAQ(data.faq);
+  if(data && data.coupons) saveCoupons(data.coupons);
   return {success:true,message:'All data synchronized'};
 }
 

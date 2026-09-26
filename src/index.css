@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
-  --font-sans: 'Noto Serif Bengali', 'Noto Serif', Georgia, serif;
+  --font-sans: 'Poppins', 'Noto Serif Bengali', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Noto Serif Bengali', 'Poppins', Georgia, serif;
+  --font-poppins: 'Poppins', sans-serif;
+  --font-bengali: 'Noto Serif Bengali', serif;
   --color-gold-50: #fcf9f2;
   --color-gold-100: #f7f1e1;
   --color-gold-200: #ede0c2;
@@ -15,20 +17,39 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
-  font-family: 'Noto Serif Bengali', 'Noto Serif', Georgia, serif;
+  font-family: 'Poppins', 'Noto Serif Bengali', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: #FAF8F5;
   color: #1c1917;
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+}
+
+#root {
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
 }
 
 .font-display {
-  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
+  font-family: 'Noto Serif Bengali', 'Poppins', serif;
 }
 
 .font-serif {
-  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
+  font-family: 'Noto Serif Bengali', 'Poppins', serif;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif;
+}
+
+.font-bengali {
+  font-family: 'Noto Serif Bengali', serif;
 }
 
 /* Custom scrollbar for clean horizontal product lists */
@@ -107,3 +128,49 @@ body {
 
 @keyframes loading-progress { from { width: 0%; } to { width: 100%; } }
 .animate-loading-progress { animation: loading-progress 8s linear forwards; }
+
+/* Eye-catching Order Button Animations */
+@keyframes btnShimmer {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  40%, 100% { transform: translateX(250%) skewX(-20deg); }
+}
+
+@keyframes btnPulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(190, 147, 70, 0.35), 0 0 0 0 rgba(190, 147, 70, 0.4);
+  }
+  50% {
+    box-shadow: 0 8px 25px rgba(190, 147, 70, 0.65), 0 0 0 8px rgba(190, 147, 70, 0);
+  }
+}
+
+@keyframes orderBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+.animate-btn-pulse {
+  animation: btnPulseGlow 2.4s infinite ease-in-out;
+}
+
+.animate-order-bounce {
+  animation: orderBounce 2.6s infinite ease-in-out;
+}
+
+.btn-shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: btnShimmer 3.2s infinite ease-in-out;
+  pointer-events: none;
+}
+

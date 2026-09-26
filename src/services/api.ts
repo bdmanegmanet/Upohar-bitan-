@@ -38,9 +38,15 @@ function initStorage() {
       const parsed = JSON.parse(storedSettings);
       // Preserve user/admin settings. Only fill fields that are missing from older versions.
       const merged = { ...INITIAL_SETTINGS, ...parsed };
+      if (!parsed.googleAppsScriptUrl || parsed.googleAppsScriptUrl.trim() === '') {
+        merged.googleAppsScriptUrl = INITIAL_SETTINGS.googleAppsScriptUrl;
+      }
+      if (!parsed.googleSheetsUrl) {
+        merged.googleSheetsUrl = INITIAL_SETTINGS.googleSheetsUrl;
+      }
       const needsRepair = Object.keys(INITIAL_SETTINGS).some(
         (key) => !(key in parsed)
-      );
+      ) || !parsed.googleAppsScriptUrl || !parsed.googleSheetsUrl;
       if (needsRepair) {
         localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(merged));
       }
@@ -830,6 +836,27 @@ export const api = {
     localStorage.setItem(STORAGE_KEYS.COUPONS, JSON.stringify(coupons));
   },
 
+  addCoupon(coupon: Coupon): Coupon[] {
+    const list = this.getCoupons().filter((c) => c.code.toUpperCase() !== coupon.code.toUpperCase());
+    list.unshift({ ...coupon, active: coupon.active !== false });
+    this.saveCoupons(list);
+    return list;
+  },
+
+  updateCoupon(coupon: Coupon): Coupon[] {
+    const list = this.getCoupons().map((c) =>
+      c.code.toUpperCase() === coupon.code.toUpperCase() ? { ...coupon, active: coupon.active !== false } : c
+    );
+    this.saveCoupons(list);
+    return list;
+  },
+
+  deleteCoupon(code: string): Coupon[] {
+    const list = this.getCoupons().filter((c) => c.code.toUpperCase() !== code.toUpperCase());
+    this.saveCoupons(list);
+    return list;
+  },
+
   validateCoupon(code: string, subtotal: number): { valid: boolean; message: string; discountAmount: number; coupon?: Coupon } {
     const trimmed = code.trim().toUpperCase();
     if (!trimmed) {
@@ -841,6 +868,10 @@ export const api = {
 
     if (!match) {
       return { valid: false, message: `Coupon code "${code}" is invalid or expired.`, discountAmount: 0 };
+    }
+
+    if (match.active === false) {
+      return { valid: false, message: `Coupon "${match.code}" is currently disabled.`, discountAmount: 0 };
     }
 
     if (match.minimumOrder && subtotal < match.minimumOrder) {

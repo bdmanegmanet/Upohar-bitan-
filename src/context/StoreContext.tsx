@@ -41,6 +41,9 @@ interface StoreContextType {
   applyCoupon: (code: string) => { success: boolean; message: string; discount?: number };
   validateCoupon: (code: string, customSubtotal?: number) => { valid: boolean; message: string; discountAmount: number; coupon?: Coupon };
   removeCoupon: () => void;
+  addCoupon: (coupon: Coupon) => void;
+  updateCoupon: (coupon: Coupon) => void;
+  deleteCoupon: (code: string) => void;
 
   // Wishlist
   wishlist: Product[];
@@ -430,6 +433,24 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast('Coupon removed');
   };
 
+  const addCoupon = useCallback((coupon: Coupon) => {
+    const updated = api.addCoupon(coupon);
+    setCoupons([...updated]);
+    showToast(language === 'bn' ? `কুপন "${coupon.code}" যোগ করা হয়েছে` : `Coupon "${coupon.code}" added`);
+  }, [language]);
+
+  const updateCoupon = useCallback((coupon: Coupon) => {
+    const updated = api.updateCoupon(coupon);
+    setCoupons([...updated]);
+    showToast(language === 'bn' ? `কুপন "${coupon.code}" আপডেট হয়েছে` : `Coupon "${coupon.code}" updated`);
+  }, [language]);
+
+  const deleteCoupon = useCallback((code: string) => {
+    const updated = api.deleteCoupon(code);
+    setCoupons([...updated]);
+    showToast(language === 'bn' ? `কুপন "${code}" মুছে ফেলা হয়েছে` : `Coupon "${code}" deleted`);
+  }, [language]);
+
   const toggleWishlist = (product: Product) => {
     setWishlist((prev) => {
       const exists = prev.some((p) => p.id === product.id);
@@ -507,6 +528,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         applyCoupon,
         validateCoupon,
         removeCoupon,
+        addCoupon,
+        updateCoupon,
+        deleteCoupon,
         wishlist,
         toggleWishlist,
         isInWishlist,
@@ -523,6 +547,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setSearchQuery,
         settings,
         updateSettings,
+        refreshAllData,
         trackingOrderId,
         setTrackingOrderId,
         isTrackingOpen,

@@ -925,7 +925,8 @@ export const INITIAL_SETTINGS = {
   bankAccountDetails: 'City Bank / Islami Bank Bangladesh\nAccount Name: উপহার বিতান (Upohar Bitan)\nA/C No: 1102837492001',
   facebookUrl: 'https://www.facebook.com/share/19ga8RpbsZ/',
   instagramUrl: 'https://www.facebook.com/share/19ga8RpbsZ/',
-  googleAppsScriptUrl: '',
+  googleAppsScriptUrl: 'https://script.google.com/macros/s/AKfycbyeHn7M6aga2tCnG1NiKfszntKkLuk4Bb-Ca8l1jVB3ZeUFYW_FGoQeMYsxyYk7mh-9/exec',
+  googleSheetsUrl: 'https://docs.google.com/spreadsheets/d/1N0jsosWpH5kReLLK_KWuIxN6jXlL0QthUMCbz-S5F7I/edit?usp=sharing',
   bannerNotice: '✨ উপহার বিতান - নীলফামারীতে মানসম্মত ক্রোকারিজ, কিচেন সামগ্রী ও আকর্ষণীয় গিফট আইটেম | সরাসরি অর্ডার করুন: 01712470028',
   heroSlides: INITIAL_HERO_SLIDES,
   content: INITIAL_CONTENT,
@@ -937,18 +938,21 @@ export const INITIAL_COUPONS = [
     discountPercent: 10,
     minimumOrder: 2000,
     description: '10% OFF on orders over ৳2,000',
+    active: true,
   },
   {
     code: 'AURA20',
     discountPercent: 20,
     minimumOrder: 6000,
     description: '20% OFF on luxury orders over ৳6,000',
+    active: true,
   },
   {
     code: 'WELCOME500',
     discountAmount: 500,
     minimumOrder: 3500,
     description: '৳500 OFF on your first purchase above ৳3,500',
+    active: true,
   },
 ];
 

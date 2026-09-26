@@ -20,7 +20,10 @@ export const ProductDetailModal: React.FC = () => {
     buyNowProduct,
     toggleWishlist,
     isInWishlist,
+    language,
   } = useStore();
+
+  const isBn = language === 'bn';
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -296,10 +299,10 @@ export const ProductDetailModal: React.FC = () => {
               <button
                 onClick={handleBuyNow}
                 disabled={selectedProduct.stock <= 0}
-                className="w-full py-3.5 px-4 text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full py-4 px-4 text-sm font-bold text-white bg-gradient-to-r from-stone-900 via-[#7B531F] to-stone-900 hover:from-black hover:via-[#5F3E18] hover:to-black rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 border border-[#BE9346]/40 animate-btn-pulse btn-shimmer-effect"
               >
-                <Sparkles className="w-4 h-4 text-[#EDE0C2]" />
-                <span>Buy Now (Instant Checkout) · ৳{(currentPrice * quantity).toLocaleString()}</span>
+                <Sparkles className="w-4 h-4 text-amber-300" />
+                <span>{isBn ? `সরাসরি অর্ডার করুন · ৳${(currentPrice * quantity).toLocaleString()}` : `Order Now (Instant Checkout) · ৳${(currentPrice * quantity).toLocaleString()}`}</span>
               </button>
             </div>
           </div>

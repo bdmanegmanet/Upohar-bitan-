@@ -129,12 +129,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             onClick={() => buyNowProduct(product, 1)}
             disabled={product.stock <= 0}
-            aria-label={language === 'bn' ? 'এখনই কিনুন' : 'Buy now'}
-            className="group/buy relative overflow-hidden inline-flex min-w-[132px] items-center justify-center gap-2 text-xs font-bold text-white bg-gradient-to-r from-[#7B531F] via-[#C79A4A] to-[#8A612D] hover:from-[#5F3E18] hover:via-[#B78332] hover:to-[#6E4B24] px-4 py-2.5 rounded-full shadow-[0_8px_20px_rgba(131,91,39,.24)] hover:shadow-[0_10px_26px_rgba(131,91,39,.34)] hover:-translate-y-1 transition-all duration-300 disabled:opacity-40 disabled:hover:translate-y-0 cursor-pointer ring-1 ring-[#E5C477]/70"
+            aria-label={language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}
+            className="group/buy relative overflow-hidden inline-flex min-w-[130px] items-center justify-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#7B531F] via-[#C79A4A] to-[#8A612D] hover:from-[#5F3E18] hover:via-[#B78332] hover:to-[#6E4B24] px-4 py-2.5 rounded-full shadow-[0_8px_20px_rgba(131,91,39,.28)] hover:shadow-[0_12px_28px_rgba(131,91,39,.42)] hover:-translate-y-1 transition-all duration-300 disabled:opacity-40 disabled:hover:translate-y-0 cursor-pointer ring-1 ring-[#E5C477]/80 btn-shimmer-effect"
           >
-            <span className="absolute inset-0 -translate-x-full group-hover/buy:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/45 to-transparent" />
-            <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white/15"><Zap className="w-3 h-3 fill-current" /></span>
-            <span className="relative whitespace-nowrap">{language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}</span>
+            <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white/20"><Zap className="w-3 h-3 fill-current text-amber-100" /></span>
+            <span className="relative whitespace-nowrap tracking-wide">{language === 'bn' ? 'অর্ডার করুন' : 'Order Now'}</span>
             <ArrowRight className="relative w-3.5 h-3.5 transition-transform group-hover/buy:translate-x-1" />
           </button>
         </div>

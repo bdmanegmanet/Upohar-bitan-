@@ -65,7 +65,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
   const [couponError, setCouponError] = useState('');
   const [couponSuccess, setCouponSuccess] = useState('');
 
-  if (!isCheckoutOpen) return null;
+  if (!isCheckoutOpen && !fullPage) return null;
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -610,10 +610,14 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 disabled:opacity-50 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
+              className="w-full py-4 text-sm font-bold text-white bg-gradient-to-r from-stone-900 via-[#7B531F] to-stone-900 hover:from-black hover:via-[#5F3E18] hover:to-black disabled:opacity-50 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2.5 cursor-pointer mt-4 border border-[#BE9346]/40 animate-btn-pulse btn-shimmer-effect transform hover:-translate-y-0.5 active:translate-y-0"
             >
-              <CheckCircle2 className="w-4 h-4 text-[#EDE0C2]" />
-              <span>{isSubmitting ? 'Recording Order in Database...' : `Confirm & {isBn ? 'অর্ডার নিশ্চিত করুন' : 'Place Order'} · ৳${finalTotal.toLocaleString()}`}</span>
+              <CheckCircle2 className="w-5 h-5 text-amber-300 shrink-0" />
+              <span className="tracking-wide">
+                {isSubmitting
+                  ? (isBn ? 'অর্ডার সংরক্ষিত হচ্ছে…' : 'Recording Order in Database...')
+                  : (isBn ? `অর্ডার নিশ্চিত করুন · মোট ৳${finalTotal.toLocaleString()}` : `Confirm & Place Order · ৳${finalTotal.toLocaleString()}`)}
+              </span>
             </button>
           </div>
         </form>
