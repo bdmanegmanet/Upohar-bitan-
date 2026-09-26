@@ -104,3 +104,6 @@ body {
   .animate-logo-float,
   .animate-mobile-menu { animation: none !important; }
 }
+
+@keyframes loading-progress { from { width: 0%; } to { width: 100%; } }
+.animate-loading-progress { animation: loading-progress 8s linear forwards; }
