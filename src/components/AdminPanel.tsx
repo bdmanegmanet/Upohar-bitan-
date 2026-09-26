@@ -1099,6 +1099,7 @@ export const AdminPanel: React.FC = () => {
               Save Store Settings
             </button>
           </div>
+          </div>
         </div>
       )}
 
