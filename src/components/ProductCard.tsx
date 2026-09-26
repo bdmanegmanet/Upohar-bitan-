@@ -1,7 +1,7 @@
 import React from 'react';
 import { Product } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Heart, ShoppingBag, Eye, Star, Zap } from 'lucide-react';
+import { Heart, ShoppingBag, Eye, Star, Zap, ArrowRight } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -129,12 +129,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             onClick={() => buyNowProduct(product, 1)}
             disabled={product.stock <= 0}
-            className="group/buy relative overflow-hidden inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#A37835] via-[#BE9346] to-[#8A612D] hover:from-[#8A612D] hover:via-[#A37835] hover:to-[#6E4B24] px-3.5 py-2 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-40 disabled:hover:translate-y-0 cursor-pointer"
+            aria-label={language === 'bn' ? 'এখনই কিনুন' : 'Buy now'}
+            className="group/buy relative overflow-hidden inline-flex min-w-[132px] items-center justify-center gap-2 text-xs font-bold text-white bg-gradient-to-r from-[#7B531F] via-[#C79A4A] to-[#8A612D] hover:from-[#5F3E18] hover:via-[#B78332] hover:to-[#6E4B24] px-4 py-2.5 rounded-full shadow-[0_8px_20px_rgba(131,91,39,.24)] hover:shadow-[0_10px_26px_rgba(131,91,39,.34)] hover:-translate-y-1 transition-all duration-300 disabled:opacity-40 disabled:hover:translate-y-0 cursor-pointer ring-1 ring-[#E5C477]/70"
           >
-            <span className="absolute inset-0 -translate-x-full group-hover/buy:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-            <Zap className="relative w-3.5 h-3.5 fill-current" />
-            <span className="relative">{language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}</span>
-            <span className="relative">→</span>
+            <span className="absolute inset-0 -translate-x-full group-hover/buy:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/45 to-transparent" />
+            <span className="relative flex h-5 w-5 items-center justify-center rounded-full bg-white/15"><Zap className="w-3 h-3 fill-current" /></span>
+            <span className="relative whitespace-nowrap">{language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}</span>
+            <ArrowRight className="relative w-3.5 h-3.5 transition-transform group-hover/buy:translate-x-1" />
           </button>
         </div>
       </div>
