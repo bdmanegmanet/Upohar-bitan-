@@ -101,6 +101,26 @@ export interface Customer {
   registrationDate: string;
 }
 
+export interface FAQItem {
+  id: string;
+  questionBn: string;
+  answerBn: string;
+  questionEn?: string;
+  answerEn?: string;
+  active?: boolean;
+  sortOrder?: number;
+}
+
+export interface StoreContent {
+  aboutBn: string;
+  aboutEn: string;
+  deliveryBn: string;
+  deliveryEn: string;
+  returnsBn: string;
+  returnsEn: string;
+  faq: FAQItem[];
+}
+
 export interface StoreSettings {
   storeName: string;
   tagline: string;
@@ -121,6 +141,7 @@ export interface StoreSettings {
   googleAppsScriptUrl: string;
   bannerNotice: string;
   heroSlides?: HeroSlide[];
+  content?: StoreContent;
 }
 
 export interface HeroSlide {
