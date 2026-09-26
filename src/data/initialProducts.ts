@@ -872,6 +872,27 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
 ];
 
+export const INITIAL_HERO_SLIDES = [
+  {
+    id: 'SLIDE-1',
+    image: 'https://lh3.googleusercontent.com/d/150UmUunPqSlX3cYt8M4oYQzDlreuN2Bs',
+    titleBn: 'উপহার বিতান',
+    titleEn: 'Upohar Bitan',
+    subtitleBn: 'রুচিশীল ক্রোকারিজ ও গিফট সামগ্রীর বিশ্বস্ত ঠিকানা',
+    subtitleEn: 'Trusted crockery and gift collection',
+    active: true,
+  },
+  {
+    id: 'SLIDE-2',
+    image: 'https://lh3.googleusercontent.com/d/1uoe21Lcjwz1DkWc-k2D5LyMsBwti5gdZ',
+    titleBn: 'নতুন কালেকশন',
+    titleEn: 'New Collection',
+    subtitleBn: 'আপনার ঘর ও প্রিয়জনের জন্য বাছাই করা সামগ্রী',
+    subtitleEn: 'Curated pieces for your home and loved ones',
+    active: true,
+  },
+];
+
 export const INITIAL_SETTINGS = {
   storeName: 'উপহার বিতান',
   tagline: 'নীলফামারীর বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান',
@@ -890,6 +911,7 @@ export const INITIAL_SETTINGS = {
   instagramUrl: 'https://www.facebook.com/share/19ga8RpbsZ/',
   googleAppsScriptUrl: '',
   bannerNotice: '✨ উপহার বিতান - নীলফামারীতে মানসম্মত ক্রোকারিজ, কিচেন সামগ্রী ও আকর্ষণীয় গিফট আইটেম | সরাসরি অর্ডার করুন: 01712470028',
+  heroSlides: INITIAL_HERO_SLIDES,
 };
 
 export const INITIAL_COUPONS = [
