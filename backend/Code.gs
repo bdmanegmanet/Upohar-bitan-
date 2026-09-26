@@ -13,7 +13,8 @@ var SHEETS = {
   SETTINGS: 'Settings',
   ADMIN: 'Admin',
   CONTENT: 'Content',
-  FAQ: 'FAQ'
+  FAQ: 'FAQ',
+  CATEGORIES: 'Categories'
 };
 
 /**
@@ -93,6 +94,18 @@ function setupDatabase() {
       ['FAQ-3','ক্যাশ অন ডেলিভারি কি আছে?','হ্যাঁ, Cash on Delivery নির্বাচন করা যায়।','Is Cash on Delivery available?','Yes, Cash on Delivery is available.','TRUE',3,new Date()],
       ['FAQ-4','পণ্য ভাঙা অবস্থায় পৌঁছালে কী করব?','দ্রুত যোগাযোগ করুন এবং ছবি/ভিডিও সংরক্ষণ করুন।','What if an item arrives damaged?','Contact the store promptly and keep photos/videos.','TRUE',4,new Date()],
       ['FAQ-5','Google Drive-এর ছবি ব্যবহার করা যাবে?','হ্যাঁ, Drive link স্বয়ংক্রিয়ভাবে image URL-এ রূপান্তর হবে।','Can Google Drive images be used?','Yes, Drive links are normalized automatically.','TRUE',5,new Date()]
+    ]);
+  }
+
+  // 8. Categories Sheet
+  var categorySheet = getOrCreateSheet(ss, SHEETS.CATEGORIES);
+  setSheetHeaders(categorySheet, ['Category_ID','Category_Name','Subcategories','Image_URL','Description','Active','Sort_Order','Updated_At']);
+  if (categorySheet.getLastRow() <= 1) {
+    categorySheet.getRange(2,1,4,8).setValues([
+      ['CAT-1','প্লেট','ডিনার প্লেট,সাইড প্লেট','', 'দৈনন্দিন ও অনুষ্ঠানের প্লেট','TRUE',1,new Date()],
+      ['CAT-2','কাপ ও মগ','টি কাপ,কফি মগ','', 'চা ও কফির সামগ্রী','TRUE',2,new Date()],
+      ['CAT-3','ডিনার সেট','ডিনার সেট,সার্ভিং সেট','', 'পরিবারের জন্য সেট','TRUE',3,new Date()],
+      ['CAT-4','গিফট','গিফট সেট,সাজসজ্জা','', 'উপহার সামগ্রী','TRUE',4,new Date()]
     ]);
   }
 
@@ -576,6 +589,19 @@ function bootstrap() {
     content: getContent().data || {},
     faq: getFAQ().data || []
   }};
+}
+
+function getHeroSlides() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTENT);
+  if (!sheet) return { success:true, data:[] };
+  var rows = sheet.getDataRange().getValues();
+  for (var i=1;i<rows.length;i++) {
+    if (String(rows[i][0]) === 'heroSlides') {
+      try { return { success:true, data:JSON.parse(String(rows[i][1] || '[]')) }; }
+      catch(e) { return { success:true, data:[] }; }
+    }
+  }
+  return { success:true, data:[] };
 }
 
 function getContent() {
