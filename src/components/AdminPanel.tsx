@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { Product, Order, Customer, OrderStatus, ProductCategory, ProductSubCategory } from '../types';
 import { CODE_GS_SOURCE } from '../data/codeGsContent';
 import { CategoryManager } from './CategoryManager';
+import { HomepageSliderManager } from './HomepageSliderManager';
 import { normalizeImageList, normalizeImageUrl } from '../utils/imageUrl';
 import {
   LayoutDashboard,
