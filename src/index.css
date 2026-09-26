@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --color-gold-50: #fcf9f2;
+  --color-gold-100: #f7f1e1;
+  --color-gold-200: #ede0c2;
+  --color-gold-300: #dfc89a;
+  --color-gold-400: #cfad6d;
+  --color-gold-500: #be9346;
+  --color-gold-600: #a37835;
+  --color-gold-700: #825b2a;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  background-color: #FAF8F5;
+  color: #1c1917;
+}
+
+.font-display {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
+}
+
+.font-serif {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
+}
+
+/* Custom scrollbar for clean horizontal product lists */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1ede4;
+}
+::-webkit-scrollbar-thumb {
+  background: #d6ccb8;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #be9346;
+}
