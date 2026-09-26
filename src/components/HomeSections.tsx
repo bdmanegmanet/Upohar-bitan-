@@ -19,7 +19,8 @@ import platesImg from '../assets/images/category_dinner_plates_1790413613482.jpg
 import heroImg from '../assets/images/hero_luxury_dinnerware_1790413597001.jpg';
 
 export const FeaturedSection: React.FC = () => {
-  const { products, setCurrentPage, setSelectedCategoryFilter } = useStore();
+  const { products, setCurrentPage, setSelectedCategoryFilter, language } = useStore();
+  const isBn = language === 'bn';
   const featuredItems = products.filter((p) => p.featured).slice(0, 4);
 
   return (
@@ -28,10 +29,10 @@ export const FeaturedSection: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <span className="text-xs uppercase tracking-[0.2em] font-semibold text-[#A37835]">
-              Masterpiece Selection
+              {isBn ? 'বিশেষ পছন্দ' : 'Masterpiece Selection'}
             </span>
             <h2 className="font-display text-3xl sm:text-4xl font-semibold text-stone-900 mt-1">
-              Featured Dinnerware & Sets
+              {isBn ? 'নির্বাচিত ক্রোকারিজ ও সেট' : 'Featured Dinnerware & Sets'}
             </h2>
           </div>
           <button
@@ -41,7 +42,7 @@ export const FeaturedSection: React.FC = () => {
             }}
             className="text-xs font-semibold text-stone-800 hover:text-[#A37835] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <span>View All Products</span>
+            <span>{isBn ? 'সব পণ্য দেখুন' : 'View All Products'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -57,7 +58,8 @@ export const FeaturedSection: React.FC = () => {
 };
 
 export const FlashSaleSection: React.FC = () => {
-  const { products, setCurrentPage } = useStore();
+  const { products, setCurrentPage, language } = useStore();
+  const isBn = language === 'bn';
   const discounted = products.filter((p) => p.discountPrice && p.discountPrice < p.price).slice(0, 4);
 
   return (
@@ -67,17 +69,17 @@ export const FlashSaleSection: React.FC = () => {
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#825B2A] bg-[#EDE0C2]/70 px-2.5 py-1 rounded-md mb-2">
               <Flame className="w-3.5 h-3.5 text-amber-700" />
-              <span>Limited Stock Special Campaign</span>
+              <span>{isBn ? 'সীমিত স্টকের বিশেষ অফার' : 'Limited Stock Special Campaign'}</span>
             </div>
             <h2 className="font-display text-3xl sm:text-4xl font-semibold text-stone-900">
-              Exclusive Discounts & Sets
+              {isBn ? 'বিশেষ ছাড় ও সেট' : 'Exclusive Discounts & Sets'}
             </h2>
           </div>
           <button
             onClick={() => setCurrentPage('shop')}
             className="text-xs font-semibold text-stone-800 hover:text-[#A37835] transition-colors flex items-center gap-1.5 cursor-pointer"
           >
-            <span>View All Sale Items</span>
+            <span>{isBn ? 'সব অফার দেখুন' : 'View All Sale Items'}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
