@@ -51,8 +51,8 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [division, set{isBn ? 'বিভাগ' : 'Division'}] = useState('Rangpur');
-  const [district, set{isBn ? 'জেলা' : 'District'}] = useState('Nilphamari');
+  const [division, setDivision] = useState('Rangpur');
+  const [district, setDistrict] = useState('Nilphamari');
   const [fullAddress, setFullAddress] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash on Delivery');
@@ -118,7 +118,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
     setErrorMessage('');
 
     if (!customerName.trim() || !phone.trim() || !fullAddress.trim()) {
-      setErrorMessage('{isBn ? 'আপনার নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা দিন।' : 'Please provide your name, phone number, and street address.'}');
+      setErrorMessage(isBn ? 'আপনার নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা দিন।' : 'Please provide your name, phone number, and street address.');
       return;
     }
 
@@ -128,7 +128,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
     }
 
     if (cart.length === 0) {
-      setErrorMessage('{isBn ? 'আপনার কার্ট খালি।' : 'Your cart is empty.'}');
+      setErrorMessage(isBn ? 'আপনার কার্ট খালি।' : 'Your cart is empty.');
       return;
     }
 
@@ -276,8 +276,8 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
                   value={division}
                   onChange={(e) => {
                     const nextDiv = e.target.value;
-                    set{isBn ? 'বিভাগ' : 'Division'}(nextDiv);
-                    set{isBn ? 'জেলা' : 'District'}(DISTRICTS_MAP[nextDiv]?.[0] || 'Other');
+                    setDivision(nextDiv);
+                    setDistrict(DISTRICTS_MAP[nextDiv]?.[0] || 'Other');
                   }}
                   className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:border-[#BE9346]"
                 >
@@ -295,7 +295,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
                 </label>
                 <select
                   value={district}
-                  onChange={(e) => set{isBn ? 'জেলা' : 'District'}(e.target.value)}
+                  onChange={(e) => setDistrict(e.target.value)}
                   className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:border-[#BE9346]"
                 >
                   {(DISTRICTS_MAP[division] || [division]).map((dist) => (
@@ -335,7 +335,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
             </div>
           </div>
 
-          {/* Section 3: {isBn ? 'পেমেন্ট পদ্ধতি' : 'Payment Method'} Selection */}
+          {/* Section 3: Payment Method Selection */}
           <div className="space-y-4 pt-4 border-t border-stone-200">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-900 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center text-[10px]">3</span>
@@ -562,7 +562,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
             )}
           </div>
 
-          {/* Section 5: {isBn ? 'অর্ডারের সারাংশ' : 'Order Summary'} Table */}
+          {/* Section 5: Order Summary Table */}
           <div className="pt-4 border-t border-stone-200 bg-[#FAF8F5] -mx-6 -mb-6 p-6 space-y-3">
             <h4 className="text-xs font-semibold text-stone-900 uppercase tracking-wider">
               Order Items Summary ({cart.reduce((a, b) => a + b.quantity, 0)} items)
