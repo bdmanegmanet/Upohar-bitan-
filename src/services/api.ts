@@ -289,8 +289,35 @@ export const api = {
           }))
         : [];
 
-      const remoteSettings = json.data?.settings || localSettings;
-      const mergedSettings = { ...localSettings, ...remoteSettings };
+      const raw = json.data?.settings || {};
+      const remoteSettings = {
+        ...localSettings,
+        ...(raw.Store_Name ? { storeName: raw.Store_Name } : {}),
+        ...(raw.Store_Phone ? { phone: raw.Store_Phone } : {}),
+        ...(raw.WhatsApp_Number ? { whatsappNumber: raw.WhatsApp_Number } : {}),
+        ...(raw.Store_Email ? { email: raw.Store_Email } : {}),
+        ...(raw.Delivery_Charge_Inside ? { deliveryChargeInside: Number(raw.Delivery_Charge_Inside) } : {}),
+        ...(raw.Delivery_Charge_Outside ? { deliveryChargeOutside: Number(raw.Delivery_Charge_Outside) } : {}),
+        ...(raw.Free_Delivery_Threshold ? { freeDeliveryThreshold: Number(raw.Free_Delivery_Threshold) } : {}),
+        ...(raw.Bkash_Number ? { bkashMerchantNumber: raw.Bkash_Number } : {}),
+        ...(raw.Nagad_Number ? { nagadMerchantNumber: raw.Nagad_Number } : {}),
+        ...(raw.Currency ? { currency: raw.Currency } : {}),
+      } as StoreSettings;
+      const mergedSettings = {
+        ...remoteSettings,
+        content: {
+          ...(localSettings.content || {}),
+          ...(json.data?.content ? {
+            aboutBn: json.data.content.about?.bn || localSettings.content?.aboutBn,
+            aboutEn: json.data.content.about?.en || localSettings.content?.aboutEn,
+            deliveryBn: json.data.content.delivery?.bn || localSettings.content?.deliveryBn,
+            deliveryEn: json.data.content.delivery?.en || localSettings.content?.deliveryEn,
+            returnsBn: json.data.content.returns?.bn || localSettings.content?.returnsBn,
+            returnsEn: json.data.content.returns?.en || localSettings.content?.returnsEn,
+            faq: Array.isArray(json.data?.faq) ? json.data.faq : (localSettings.content?.faq || []),
+          } : {}),
+        },
+      };
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(mergedSettings));
       if (Array.isArray(json.data?.categories)) {
