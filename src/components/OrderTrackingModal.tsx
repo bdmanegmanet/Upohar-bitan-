@@ -34,11 +34,16 @@ export const OrderTrackingModal: React.FC = () => {
     setHasSearched(true);
     try {
       const orders = await api.getOrders();
-      const match = orders.find(
-        (o) =>
-          o.id.toLowerCase() === id.trim().toLowerCase() ||
-          o.phone.replace(/[^0-9]/g, '').includes(id.trim().replace(/[^0-9]/g, ''))
-      );
+      const normalized = id.trim();
+      const normalizedDigits = normalized.replace(/[^0-9]/g, '');
+      const match = orders.find((o) => {
+        const orderIdMatches = o.id.toLowerCase() === normalized.toLowerCase();
+        const phoneDigits = o.phone.replace(/[^0-9]/g, '');
+        // Require an exact phone match to avoid exposing another customer's order
+        // when a short/partial number is entered.
+        const phoneMatches = normalizedDigits.length >= 10 && phoneDigits === normalizedDigits;
+        return orderIdMatches || phoneMatches;
+      });
       setMatchedOrder(match || null);
     } catch (e) {
       console.error(e);
