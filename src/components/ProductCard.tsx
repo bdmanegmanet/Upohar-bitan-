@@ -1,14 +1,14 @@
 import React from 'react';
 import { Product } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Heart, ShoppingBag, Eye, Star } from 'lucide-react';
+import { Heart, ShoppingBag, Eye, Star, Zap } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart, toggleWishlist, isInWishlist, setSelectedProduct, buyNowProduct } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, setSelectedProduct, buyNowProduct, language } = useStore();
   const inWishlist = isInWishlist(product.id);
 
   const displayImage = product.images[0] || '';
@@ -129,9 +129,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             onClick={() => buyNowProduct(product, 1)}
             disabled={product.stock <= 0}
-            className="text-xs font-semibold text-[#A37835] hover:text-[#825B2A] transition-colors disabled:opacity-40 cursor-pointer"
+            className="group/buy relative overflow-hidden inline-flex items-center gap-1.5 text-xs font-bold text-white bg-gradient-to-r from-[#A37835] via-[#BE9346] to-[#8A612D] hover:from-[#8A612D] hover:via-[#A37835] hover:to-[#6E4B24] px-3.5 py-2 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-40 disabled:hover:translate-y-0 cursor-pointer"
           >
-            Buy Now →
+            <span className="absolute inset-0 -translate-x-full group-hover/buy:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/35 to-transparent" />
+            <Zap className="relative w-3.5 h-3.5 fill-current" />
+            <span className="relative">{language === 'bn' ? 'এখনই কিনুন' : 'Buy Now'}</span>
+            <span className="relative">→</span>
           </button>
         </div>
       </div>
