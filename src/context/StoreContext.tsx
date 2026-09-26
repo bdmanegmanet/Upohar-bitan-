@@ -203,8 +203,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } else if (hash === '#wishlist') {
         setPageState('wishlist');
       } else if (hash === '#cart') {
+        setPageState('home');
         setIsCartOpen(true);
       } else if (hash === '#track' || hash === '#tracking') {
+        setPageState('home');
         setIsTrackingOpen(true);
       } else if (hash === '' || hash === '#/' || hash === '#home') {
         setPageState((prev) => (prev === 'admin' ? 'home' : prev));
@@ -272,21 +274,37 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const addToCart = (product: Product, quantity = 1, selectedColor?: string, selectedSize?: string) => {
+    const requested = Math.max(1, Math.floor(quantity));
+    if (product.status === 'Out of Stock' || product.stock <= 0) {
+      showToast(`"${product.name}" is out of stock`);
+      return;
+    }
+
     setCart((prev) => {
       const existingIndex = prev.findIndex((item) => item.product.id === product.id);
+      const existingQuantity = existingIndex > -1 ? prev[existingIndex].quantity : 0;
+      const nextQuantity = Math.min(product.stock, existingQuantity + requested);
+
+      if (nextQuantity <= existingQuantity) {
+        showToast(`Only ${product.stock} unit(s) available for "${product.name}"`);
+        return prev;
+      }
+
       if (existingIndex > -1) {
         const next = [...prev];
         next[existingIndex] = {
           ...next[existingIndex],
-          quantity: next[existingIndex].quantity + quantity,
+          quantity: nextQuantity,
+          product,
         };
         return next;
       }
+
       return [
         ...prev,
         {
           product,
-          quantity,
+          quantity: Math.min(requested, product.stock),
           selectedColor: selectedColor || product.color,
           selectedSize: selectedSize || product.size,
         },
@@ -307,7 +325,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return;
     }
     setCart((prev) =>
-      prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item))
+      prev.map((item) => {
+        if (item.product.id !== productId) return item;
+        const maxStock = Math.max(0, item.product.stock);
+        const nextQuantity = Math.min(Math.floor(quantity), maxStock);
+        if (nextQuantity <= 0) return item;
+        return { ...item, quantity: nextQuantity };
+      })
     );
   };
 
