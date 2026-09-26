@@ -28,9 +28,21 @@ import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { Footer } from './components/Footer';
 import { HeroSlider } from './components/HeroSlider';
+import { CheckoutPage } from './components/CheckoutPage';
+import { LoadingScreen } from './components/LoadingScreen';
 
 const AppContent: React.FC = () => {
-  const { currentPage, toastMessage } = useStore();
+  const { currentPage, toastMessage, isLoading, settings } = useStore();
+  const [bootReady, setBootReady] = React.useState(false);
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setBootReady(true), 8000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (!bootReady) {
+    return <LoadingScreen storeName={settings.storeName || 'উপহার বিতান'} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
@@ -56,6 +68,8 @@ const AppContent: React.FC = () => {
 
         {currentPage === 'wishlist' && <WishlistView />}
 
+        {currentPage === 'checkout' && <CheckoutPage />}
+
         {currentPage === 'admin' && <AdminPanel />}
 
         {currentPage === 'about' && <AboutUsPage />}
@@ -77,7 +91,7 @@ const AppContent: React.FC = () => {
       {/* Modals & Drawers */}
       <CartDrawer />
       <ProductDetailModal />
-      <CheckoutModal />
+      {currentPage !== 'checkout' && <CheckoutModal />}
       <OrderSuccessModal />
       <OrderTrackingModal />
 
