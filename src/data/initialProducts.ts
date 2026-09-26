@@ -893,6 +893,22 @@ export const INITIAL_HERO_SLIDES = [
   },
 ];
 
+const INITIAL_CONTENT = {
+  aboutBn: 'উপহার বিতান নীলফামারীর একটি বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান। মানসম্মত পণ্য, ন্যায্য মূল্য ও আন্তরিক সেবাকে আমরা সর্বোচ্চ গুরুত্ব দিই।',
+  aboutEn: 'Upohar Bitan is a trusted crockery and gift store in Nilphamari, focused on quality products, fair pricing and caring service.',
+  deliveryBn: 'নীলফামারী ও আশপাশের এলাকায় দ্রুত ডেলিভারি এবং দেশের অন্যান্য অঞ্চলে কুরিয়ার/ডেলিভারি সুবিধা দেওয়া হয়। অর্ডার কনফার্মের পর সম্ভাব্য ডেলিভারি সময় জানানো হবে।',
+  deliveryEn: 'Fast delivery is available in Nilphamari and nearby areas, with courier delivery to other regions. Estimated delivery time is shared after order confirmation.',
+  returnsBn: 'পণ্য ভাঙা, ভুল পণ্য বা উল্লেখযোগ্য ত্রুটি থাকলে গ্রহণের পর নির্ধারিত সময়ের মধ্যে যোগাযোগ করুন। প্রমাণ হিসেবে ছবি/ভিডিও প্রয়োজন হতে পারে। ব্যবহার করা বা গ্রাহকের কারণে ক্ষতিগ্রস্ত পণ্যের ক্ষেত্রে নীতিমালা প্রযোজ্য নয়।',
+  returnsEn: 'For damaged, incorrect or materially defective products, contact us within the stated return period. Photos/videos may be requested. Used or customer-damaged items are subject to the return policy.',
+  faq: [
+    { id: 'FAQ-1', questionBn: 'অর্ডার করার পর কীভাবে নিশ্চিত হব?', answerBn: 'অর্ডার সফল হলে একটি Order ID তৈরি হবে। প্রয়োজনে ফোন বা WhatsApp-এর মাধ্যমে অর্ডারের অবস্থা নিশ্চিত করা যাবে।', questionEn: 'How do I know my order was placed?', answerEn: 'A unique Order ID is generated after successful submission. You can also confirm the status by phone or WhatsApp.', active: true, sortOrder: 1 },
+    { id: 'FAQ-2', questionBn: 'কত দিনে পণ্য ডেলিভারি হয়?', answerBn: 'এলাকা ও পণ্যের ধরন অনুযায়ী সময় ভিন্ন হতে পারে। অর্ডার কনফার্মের সময় সম্ভাব্য সময় জানানো হবে।', questionEn: 'How long does delivery take?', answerEn: 'Delivery time varies by location and product. The expected timeframe is shared when the order is confirmed.', active: true, sortOrder: 2 },
+    { id: 'FAQ-3', questionBn: 'ক্যাশ অন ডেলিভারি কি আছে?', answerBn: 'হ্যাঁ, সাইটে Cash on Delivery নির্বাচন করে অর্ডার করা যায়।', questionEn: 'Is Cash on Delivery available?', answerEn: 'Yes. You can select Cash on Delivery during checkout.', active: true, sortOrder: 3 },
+    { id: 'FAQ-4', questionBn: 'Google Drive-এর ছবি ব্যবহার করা যাবে?', answerBn: 'হ্যাঁ। Admin Dashboard-এ Drive file link দিলে সেটি স্বয়ংক্রিয়ভাবে lh3.googleusercontent.com/d/IMAGE_ID ফরম্যাটে রূপান্তর হবে।', questionEn: 'Can Google Drive images be used?', answerEn: 'Yes. Drive file links are automatically normalized to the lh3.googleusercontent.com/d/IMAGE_ID format.', active: true, sortOrder: 4 },
+    { id: 'FAQ-5', questionBn: 'পণ্য ভাঙা অবস্থায় পৌঁছালে কী করব?', answerBn: 'ডেলিভারি গ্রহণের সময় প্যাকেজ পরীক্ষা করুন এবং সমস্যা থাকলে দ্রুত দোকানের সঙ্গে যোগাযোগ করুন। ছবি/ভিডিও সংরক্ষণ করুন।', questionEn: 'What if an item arrives damaged?', answerEn: 'Inspect the parcel on delivery and contact the store promptly if damaged. Keep photos/videos of the issue.', active: true, sortOrder: 5 },
+  ],
+};
+
 export const INITIAL_SETTINGS = {
   storeName: 'উপহার বিতান',
   tagline: 'নীলফামারীর বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান',
@@ -912,6 +928,7 @@ export const INITIAL_SETTINGS = {
   googleAppsScriptUrl: '',
   bannerNotice: '✨ উপহার বিতান - নীলফামারীতে মানসম্মত ক্রোকারিজ, কিচেন সামগ্রী ও আকর্ষণীয় গিফট আইটেম | সরাসরি অর্ডার করুন: 01712470028',
   heroSlides: INITIAL_HERO_SLIDES,
+  content: INITIAL_CONTENT,
 };
 
 export const INITIAL_COUPONS = [
