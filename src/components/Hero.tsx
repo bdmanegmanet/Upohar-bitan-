@@ -68,9 +68,9 @@ export const Hero: React.FC = () => {
             </div>
 
             {/* Local Store Highlights */}
-            <div className="pt-6 border-t border-stone-200/80 grid grid-cols-3 gap-4 text-left">
+            <div className="pt-6 border-t border-stone-200/80 grid grid-cols-1 min-[380px]:grid-cols-3 gap-4 text-left">
               <div>
-                <div className="font-display text-lg sm:text-xl font-bold text-stone-900 flex items-center gap-1">
+                <div className="font-display text-base sm:text-xl font-bold text-stone-900 flex items-center gap-1 min-w-0">
                   <MapPin className="w-4 h-4 text-[#A37835]" />
                   <span>গাছবাড়ী</span>
                 </div>
@@ -81,7 +81,7 @@ export const Hero: React.FC = () => {
               <div>
                 <div className="font-display text-lg sm:text-xl font-bold text-stone-900 flex items-center gap-1">
                   <Phone className="w-4 h-4 text-[#A37835]" />
-                  <span>01712...</span>
+                  <a href="tel:01712470028" className="hover:text-[#A37835] transition-colors whitespace-nowrap">01712470028</a>
                 </div>
                 <div className="text-xs text-stone-500 mt-0.5">
                   {isBn ? 'কল / হোয়াটসঅ্যাপ' : 'Direct Support'}
