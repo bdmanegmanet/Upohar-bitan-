@@ -247,6 +247,71 @@ function initStorage() {
 initStorage();
 
 export const api = {
+  async bootstrap(): Promise<{ products: Product[]; settings: StoreSettings; categories: CategoryItem[] }> {
+    initStorage();
+    const localSettings = this.getSettings();
+    const url = String(localSettings.googleAppsScriptUrl || '').trim();
+    if (!url) {
+      return {
+        products: await this.getProducts(),
+        settings: localSettings,
+        categories: this.getCategories(),
+      };
+    }
+
+    try {
+      const res = await fetch(url + '?action=bootstrap', { method: 'GET' });
+      if (!res.ok) throw new Error('Bootstrap request failed: ' + res.status);
+      const json = await res.json();
+      if (!json.success) throw new Error(json.message || 'Bootstrap failed');
+
+      const products: Product[] = Array.isArray(json.data?.products)
+        ? json.data.products.map((item: any) => ({
+            id: item.Product_ID || item.id,
+            name: item.Product_Name || item.name,
+            category: item.Category || 'Plates',
+            subCategory: item.SubCategory || 'Plate',
+            shortDescription: item.Short_Description || '',
+            description: item.Description || '',
+            price: Number(item.Price) || 0,
+            discountPrice: item.Discount_Price ? Number(item.Discount_Price) : undefined,
+            stock: Number(item.Stock) || 0,
+            sku: item.SKU || '',
+            images: normalizeImageList(String(item.Images || '')),
+            material: item.Material || 'Porcelain',
+            size: item.Size || '',
+            color: item.Color || '',
+            rating: Number(item.Rating) || 5,
+            reviewCount: Number(item.Review_Count) || 0,
+            status: item.Status || 'Active',
+            specifications: { dishwasherSafe: true, microwaveSafe: true, foodGrade: true },
+            createdDate: item.Created_Date || new Date().toISOString(),
+          }))
+        : [];
+
+      const remoteSettings = json.data?.settings || localSettings;
+      const mergedSettings = { ...localSettings, ...remoteSettings };
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(mergedSettings));
+      if (Array.isArray(json.data?.categories)) {
+        localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(json.data.categories));
+      }
+
+      return {
+        products,
+        settings: mergedSettings,
+        categories: Array.isArray(json.data?.categories) ? json.data.categories : this.getCategories(),
+      };
+    } catch (error) {
+      console.warn('Bootstrap API failed; using local cache:', error);
+      return {
+        products: await this.getProducts(),
+        settings: localSettings,
+        categories: this.getCategories(),
+      };
+    }
+  },
+
   // PRODUCTS
   async getProducts(): Promise<Product[]> {
     initStorage();
