@@ -11,7 +11,9 @@ var SHEETS = {
   ORDERS: 'Orders',
   CUSTOMERS: 'Customers',
   SETTINGS: 'Settings',
-  ADMIN: 'Admin'
+  ADMIN: 'Admin',
+  CONTENT: 'Content',
+  FAQ: 'FAQ'
 };
 
 /**
@@ -68,7 +70,33 @@ function setupDatabase() {
     settingsSheet.getRange(2, 1, defaultSettings.length, 2).setValues(defaultSettings);
   }
 
-  // 5. Admin Sheet
+  // 5. Content Sheet
+  var contentSheet = getOrCreateSheet(ss, SHEETS.CONTENT);
+  setSheetHeaders(contentSheet, ['Content_Key', 'Bangla', 'English', 'Updated_At']);
+  if (contentSheet.getLastRow() <= 1) {
+    contentSheet.getRange(2, 1, 5, 4).setValues([
+      ['about', 'উপহার বিতান নীলফামারীর একটি বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান।', 'Upohar Bitan is a trusted crockery and gift store in Nilphamari.', new Date()],
+      ['delivery', 'নীলফামারী ও দেশের অন্যান্য অঞ্চলে ডেলিভারি সুবিধা রয়েছে।', 'Delivery is available in Nilphamari and other regions.', new Date()],
+      ['returns', 'ভাঙা, ভুল বা ত্রুটিপূর্ণ পণ্যের ক্ষেত্রে নির্ধারিত নীতিমালা অনুযায়ী রিটার্ন/রিপ্লেসমেন্ট করা হবে।', 'Damaged, incorrect or defective items may be returned/replaced under the policy.', new Date()],
+      ['heroSlides', '[]', '[]', new Date()],
+      ['storeName', 'উপহার বিতান', 'Upohar Bitan', new Date()]
+    ]);
+  }
+
+  // 6. FAQ Sheet
+  var faqSheet = getOrCreateSheet(ss, SHEETS.FAQ);
+  setSheetHeaders(faqSheet, ['FAQ_ID', 'Question_BN', 'Answer_BN', 'Question_EN', 'Answer_EN', 'Active', 'Sort_Order', 'Updated_At']);
+  if (faqSheet.getLastRow() <= 1) {
+    faqSheet.getRange(2, 1, 5, 8).setValues([
+      ['FAQ-1','অর্ডার করার পর কীভাবে নিশ্চিত হব?','অর্ডার সফল হলে একটি Order ID তৈরি হবে।','How do I know my order was placed?','A unique Order ID is generated after successful submission.','TRUE',1,new Date()],
+      ['FAQ-2','কত দিনে পণ্য ডেলিভারি হয়?','এলাকা ও পণ্যের ধরন অনুযায়ী সময় ভিন্ন হতে পারে।','How long does delivery take?','Delivery time varies by location and product.','TRUE',2,new Date()],
+      ['FAQ-3','ক্যাশ অন ডেলিভারি কি আছে?','হ্যাঁ, Cash on Delivery নির্বাচন করা যায়।','Is Cash on Delivery available?','Yes, Cash on Delivery is available.','TRUE',3,new Date()],
+      ['FAQ-4','পণ্য ভাঙা অবস্থায় পৌঁছালে কী করব?','দ্রুত যোগাযোগ করুন এবং ছবি/ভিডিও সংরক্ষণ করুন।','What if an item arrives damaged?','Contact the store promptly and keep photos/videos.','TRUE',4,new Date()],
+      ['FAQ-5','Google Drive-এর ছবি ব্যবহার করা যাবে?','হ্যাঁ, Drive link স্বয়ংক্রিয়ভাবে image URL-এ রূপান্তর হবে।','Can Google Drive images be used?','Yes, Drive links are normalized automatically.','TRUE',5,new Date()]
+    ]);
+  }
+
+  // 7. Admin Sheet
   var adminSheet = getOrCreateSheet(ss, SHEETS.ADMIN);
   var adminHeaders = ['Username', 'Password', 'Role'];
   setSheetHeaders(adminSheet, adminHeaders);
@@ -107,6 +135,15 @@ function doGet(e) {
         break;
       case 'getSettings':
         response = getSettings();
+        break;
+      case 'bootstrap':
+        response = bootstrap();
+        break;
+      case 'getContent':
+        response = getContent();
+        break;
+      case 'getFAQ':
+        response = getFAQ();
         break;
       case 'ping':
         response = { success: true, message: 'Google Apps Script Web App connected successfully!', timestamp: new Date().toISOString() };
@@ -155,6 +192,15 @@ function doPost(e) {
         break;
       case 'updateSettings':
         response = updateSettings(data);
+        break;
+      case 'updateContent':
+        response = updateContent(data);
+        break;
+      case 'saveFAQ':
+        response = saveFAQ(data);
+        break;
+      case 'syncAll':
+        response = syncAll(data);
         break;
       default:
         response = { success: false, message: 'Unknown POST action: ' + action };
@@ -520,3 +566,54 @@ function createJsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+function bootstrap() {
+  setupDatabase();
+  return { success: true, message: 'Bootstrap data ready', data: {
+    products: getProducts().data || [],
+    settings: getSettings().data || {},
+    categories: [],
+    content: getContent().data || {},
+    faq: getFAQ().data || []
+  }};
+}
+
+function getContent() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTENT);
+  if (!sheet) return { success:false, message:'Content sheet missing' };
+  var rows = sheet.getDataRange().getValues(); var out = {};
+  for (var i=1;i<rows.length;i++) out[String(rows[i][0])] = { bn:String(rows[i][1]||''), en:String(rows[i][2]||'') };
+  return { success:true, data:out };
+}
+
+function getFAQ() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FAQ);
+  if (!sheet) return { success:false, message:'FAQ sheet missing' };
+  var rows=sheet.getDataRange().getValues(); var out=[];
+  for(var i=1;i<rows.length;i++) if(String(rows[i][5]).toLowerCase()!=='false') out.push({id:String(rows[i][0]),questionBn:String(rows[i][1]),answerBn:String(rows[i][2]),questionEn:String(rows[i][3]),answerEn:String(rows[i][4]),active:true,sortOrder:Number(rows[i][6])||i});
+  out.sort(function(a,b){return a.sortOrder-b.sortOrder;}); return {success:true,data:out};
+}
+
+function updateContent(data) {
+  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.CONTENT); if(!sheet) return {success:false,message:'Content sheet missing'};
+  var rows=sheet.getDataRange().getValues(), index={}; for(var i=1;i<rows.length;i++) index[String(rows[i][0])]=i+1;
+  for(var key in data){ var value=data[key]||{}; if(index[key]) sheet.getRange(index[key],2,1,3).setValues([[value.bn||'',value.en||'',new Date()]]); else sheet.appendRow([key,value.bn||'',value.en||'',new Date()]); }
+  return {success:true,message:'Content synced'};
+}
+
+function saveFAQ(data) {
+  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEETS.FAQ); if(!sheet) return {success:false,message:'FAQ sheet missing'};
+  var rows=Array.isArray(data)?data:(data.items||[]); if(!rows.length) return {success:false,message:'No FAQ data'};
+  if(sheet.getLastRow()>1) sheet.getRange(2,1,sheet.getLastRow()-1,8).clearContent();
+  var values=rows.map(function(f,i){return [f.id||('FAQ-'+(i+1)),f.questionBn||'',f.answerBn||'',f.questionEn||'',f.answerEn||'',f.active!==false?'TRUE':'FALSE',Number(f.sortOrder)||i+1,new Date()];});
+  sheet.getRange(2,1,values.length,8).setValues(values); return {success:true,message:'FAQ synced',data:values};
+}
+
+function syncAll(data) {
+  setupDatabase();
+  if(data && data.settings) updateSettings(data.settings);
+  if(data && data.content) updateContent(data.content);
+  if(data && data.faq) saveFAQ(data.faq);
+  return {success:true,message:'All data synchronized'};
+}
+
