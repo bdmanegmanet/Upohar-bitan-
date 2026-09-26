@@ -4,6 +4,7 @@ import { api } from '../services/api';
 import { Product, Order, Customer, OrderStatus, ProductCategory, ProductSubCategory } from '../types';
 import { CODE_GS_SOURCE } from '../data/codeGsContent';
 import { CategoryManager } from './CategoryManager';
+import { normalizeImageList, normalizeImageUrl } from '../utils/imageUrl';
 import {
   LayoutDashboard,
   Package,
@@ -171,10 +172,7 @@ export const AdminPanel: React.FC = () => {
   // Save product (Add or Edit)
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    const imagesArray = productForm.imagesText
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const imagesArray = normalizeImageList(productForm.imagesText);
 
     if (imagesArray.length === 0) {
       imagesArray.push(products[0]?.images[0] || '');
@@ -299,10 +297,10 @@ export const AdminPanel: React.FC = () => {
               Administrative Portal
             </span>
             <h1 className="font-display text-2xl font-semibold text-stone-900">
-              Aura Tableware Console
+              উপহার বিতান — এডমিন কন্ট্রোল সেন্টার
             </h1>
             <p className="text-xs text-stone-500">
-              Sign in to manage dinnerware inventory, orders, and Google Sheets backend
+              সাইট পরিচালনা, পণ্য, অর্ডার ও Google Sheets নিয়ন্ত্রণ করতে প্রবেশ করুন
             </p>
           </div>
 
@@ -342,8 +340,7 @@ export const AdminPanel: React.FC = () => {
             </div>
 
             <div className="p-3 bg-[#FAF8F5] rounded-lg border border-stone-200 text-[11px] text-stone-600">
-              Default credentials: <strong className="text-stone-900">admin</strong> /{' '}
-              <strong className="text-stone-900">aura@admin2026</strong>
+              নিরাপত্তার জন্য ডিফল্ট পাসওয়ার্ড এখানে প্রদর্শন করা হয় না।
             </div>
 
             <button
@@ -922,9 +919,44 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 5: WEBSITE SETTINGS */}
+      {/* Homepage Slider + Website Settings */}
       {activeTab === 'settings' && (
-        <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-6 max-w-4xl">
+        <div className="space-y-6 max-w-5xl">
+          <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-5">
+            <div>
+              <h3 className="font-display text-xl font-semibold text-stone-900">হোমপেজ ইমেজ স্লাইডার</h3>
+              <p className="text-xs text-stone-500 mt-1">ছবি 16:9 অনুপাতে দেখাবে এবং ৪ সেকেন্ড পরপর স্বয়ংক্রিয়ভাবে পরিবর্তিত হবে। Google Drive লিংক দিলে তা স্বয়ংক্রিয়ভাবে lh3.googleusercontent.com/d/ID ফরম্যাটে রূপান্তর হবে।</p>
+            </div>
+            <div className="space-y-4">
+              {(settings.heroSlides || []).map((slide, index) => (
+                <div key={slide.id} className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-stone-200">
+                  <div className="aspect-video rounded-lg overflow-hidden bg-stone-200">
+                    <img src={normalizeImageUrl(slide.image)} alt={slide.titleBn || 'স্লাইড'} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  </div>
+                  <div className="space-y-2">
+                    <input value={slide.image} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, image: normalizeImageUrl(e.target.value)} : s)})} placeholder="Google Drive / image link" className="w-full px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input value={slide.titleBn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, titleBn: e.target.value} : s)})} placeholder="বাংলা শিরোনাম" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
+                      <input value={slide.titleEn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, titleEn: e.target.value} : s)})} placeholder="English title" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
+                      <input value={slide.subtitleBn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, subtitleBn: e.target.value} : s)})} placeholder="বাংলা সাবটাইটেল" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
+                      <input value={slide.subtitleEn || ''} onChange={(e) => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, subtitleEn: e.target.value} : s)})} placeholder="English subtitle" className="px-3 py-2 text-xs bg-white border border-stone-300 rounded-lg" />
+                    </div>
+                  </div>
+                  <div className="flex lg:flex-col gap-2">
+                    <button type="button" onClick={() => updateSettings({...settings, heroSlides: (settings.heroSlides || []).map((s) => s.id === slide.id ? {...s, active: s.active === false} : s)})} className="px-3 py-2 text-xs rounded-lg border border-stone-300 bg-white">{slide.active === false ? 'বন্ধ' : 'চালু'}</button>
+                    <button type="button" onClick={() => updateSettings({...settings, heroSlides: (settings.heroSlides || []).filter((s) => s.id !== slide.id)})} className="px-3 py-2 text-xs rounded-lg bg-rose-50 text-rose-700">মুছুন</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button type="button" onClick={() => {
+              const slides = settings.heroSlides || [];
+              const n = slides.length + 1;
+              updateSettings({...settings, heroSlides: [...slides, {id: 'SLIDE-' + Date.now(), image: '', titleBn: 'নতুন স্লাইড', titleEn: 'New Slide', subtitleBn: '', subtitleEn: '', active: true}]});
+            }} className="px-4 py-2.5 text-xs font-semibold text-white bg-stone-900 rounded-lg">+ নতুন স্লাইড যোগ করুন</button>
+          </div>
+
+          <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-6 max-w-4xl">
           <div className="border-b border-stone-200 pb-3">
             <h3 className="font-display text-xl font-semibold text-stone-900">
               Store Configuration & Payment Details
