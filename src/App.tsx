@@ -36,7 +36,7 @@ const AppContent: React.FC = () => {
   const [bootReady, setBootReady] = React.useState(false);
 
   React.useEffect(() => {
-    const timer = window.setTimeout(() => setBootReady(true), 2500);
+    const timer = window.setTimeout(() => setBootReady(true), 8000);
     return () => window.clearTimeout(timer);
   }, []);
 
