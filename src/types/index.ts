@@ -120,6 +120,17 @@ export interface StoreSettings {
   instagramUrl: string;
   googleAppsScriptUrl: string;
   bannerNotice: string;
+  heroSlides?: HeroSlide[];
+}
+
+export interface HeroSlide {
+  id: string;
+  image: string;
+  titleBn?: string;
+  titleEn?: string;
+  subtitleBn?: string;
+  subtitleEn?: string;
+  active?: boolean;
 }
 
 export interface CartItem {
