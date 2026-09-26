@@ -672,38 +672,9 @@ export const api = {
   },
 
   saveSettings(settings: StoreSettings): void {
+    // Local save only. Manual "Sheets-এ Push" is the single verified server-write path.
+    // This prevents duplicate/racing GAS requests when an admin edits content.
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-
-    if (settings.googleAppsScriptUrl) {
-      try {
-        fetch(settings.googleAppsScriptUrl, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'syncAll',
-            data: {
-              settings: {
-                Store_Name: settings.storeName,
-                Store_Phone: settings.phone,
-                WhatsApp_Number: settings.whatsappNumber,
-                Store_Email: settings.email,
-                Delivery_Charge_Inside: String(settings.deliveryChargeInside),
-                Delivery_Charge_Outside: String(settings.deliveryChargeOutside),
-                Free_Delivery_Threshold: String(settings.freeDeliveryThreshold),
-                Bkash_Number: settings.bkashMerchantNumber,
-                Nagad_Number: settings.nagadMerchantNumber,
-                Currency: settings.currency,
-              },
-              content: settings.content || {},
-              faq: settings.content?.faq || [],
-            },
-          }),
-        }).catch((e) => console.warn('Could not sync all data to GAS', e));
-      } catch (err) {
-        console.warn('Error syncing data to GAS:', err);
-      }
-    }
   },
 
   async syncAllToSheets(settings: StoreSettings): Promise<{success:boolean; message:string; syncedAt:string; synced:any}> {
