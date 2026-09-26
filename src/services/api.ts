@@ -272,7 +272,7 @@ export const api = {
               discountPrice: item.Discount_Price ? Number(item.Discount_Price) : undefined,
               stock: Number(item.Stock) || 0,
               sku: item.SKU || '',
-              images: normalizeImageList(String(item.Images ? String(item.Images).split(')),').map((s: string) => s.trim()) : [],
+              images: normalizeImageList(String(item.Images || '')),
               material: item.Material || 'Porcelain',
               size: item.Size || '',
               color: item.Color || '',
