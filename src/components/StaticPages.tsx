@@ -256,6 +256,7 @@ export const FAQPage: React.FC = () => {
 export const DeliveryInfoPage: React.FC = () => {
   const { settings, setCurrentPage, language } = useStore();
   const isBn = language === 'bn';
+  const deliveryText = isBn ? settings.content?.deliveryBn : settings.content?.deliveryEn;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -275,6 +276,7 @@ export const DeliveryInfoPage: React.FC = () => {
       </h1>
 
       <div className="space-y-6 text-xs text-stone-700 leading-relaxed">
+        <div className="mb-5 p-5 bg-white rounded-xl border border-stone-200 leading-relaxed text-sm text-stone-700">{deliveryText || (isBn ? 'ডেলিভারি সংক্রান্ত তথ্য এখানে পাওয়া যাবে।' : 'Delivery information is available here.')}</div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-5 bg-white rounded-xl border border-stone-200">
             <h3 className="font-semibold text-sm text-stone-900 mb-1">Inside Dhaka Metropolitan</h3>
@@ -307,6 +309,7 @@ export const DeliveryInfoPage: React.FC = () => {
 export const ReturnPolicyPage: React.FC = () => {
   const { setCurrentPage, language } = useStore();
   const isBn = language === 'bn';
+  const returnsText = isBn ? settings.content?.returnsBn : settings.content?.returnsEn;
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -325,6 +328,7 @@ export const ReturnPolicyPage: React.FC = () => {
         7-Day Return & Replacement Policy
       </h1>
 
+      <div className="mb-5 p-5 bg-white rounded-xl border border-stone-200 leading-relaxed text-sm text-stone-700">{returnsText || (isBn ? 'রিটার্ন ও রিপ্লেসমেন্টের বিস্তারিত তথ্য এখানে পাওয়া যাবে।' : 'Return and replacement details are available here.')}</div>
       <div className="space-y-4 text-xs text-stone-700 leading-relaxed bg-white p-6 rounded-xl border border-stone-200">
         <p>
           We take extraordinary pride in the craftsmanship and packaging of every Aura piece. If you receive any item that is broken, chipped, or deviates from your ordered specifications, we guarantee a swift, hassle-free resolution.
