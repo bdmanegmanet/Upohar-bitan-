@@ -26,7 +26,7 @@ const DISTRICTS_MAP: Record<string, string[]> = {
   Mymensingh: ['Mymensingh', 'Jamalpur', 'Netrokona', 'Sherpur'],
 };
 
-export const CheckoutModal: React.FC = () => {
+export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = false }) => {
   const {
     isCheckoutOpen,
     setIsCheckoutOpen,
@@ -43,6 +43,7 @@ export const CheckoutModal: React.FC = () => {
     refreshProducts,
     showToast,
     language,
+    setCurrentPage,
   } = useStore();
 
   const isBn = language === 'bn';
@@ -177,8 +178,8 @@ export const CheckoutModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-stone-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fade-in">
-      <div className="relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-stone-200 my-auto">
+    <div className={fullPage ? "w-full" : "fixed inset-0 z-50 overflow-y-auto bg-stone-950/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fade-in"}>
+      <div className={fullPage ? "relative bg-white w-full rounded-2xl border border-stone-200 shadow-sm overflow-hidden" : "relative bg-white w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden border border-stone-200 my-auto"}>
         {/* Header */}
         <div className="px-6 py-4 bg-[#FAF8F5] border-b border-stone-200 flex items-center justify-between">
           <div>
@@ -193,7 +194,7 @@ export const CheckoutModal: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => setIsCheckoutOpen(false)}
+            onClick={() => { setIsCheckoutOpen(false); setCurrentPage('home'); }}
             className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
