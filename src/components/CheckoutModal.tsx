@@ -51,8 +51,8 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [division, setDivision] = useState('Rangpur');
-  const [district, setDistrict] = useState('Nilphamari');
+  const [division, set{isBn ? 'বিভাগ' : 'Division'}] = useState('Rangpur');
+  const [district, set{isBn ? 'জেলা' : 'District'}] = useState('Nilphamari');
   const [fullAddress, setFullAddress] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('Cash on Delivery');
@@ -118,7 +118,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
     setErrorMessage('');
 
     if (!customerName.trim() || !phone.trim() || !fullAddress.trim()) {
-      setErrorMessage('Please provide your name, phone number, and street address.');
+      setErrorMessage('{isBn ? 'আপনার নাম, মোবাইল নম্বর ও পূর্ণ ঠিকানা দিন।' : 'Please provide your name, phone number, and street address.'}');
       return;
     }
 
@@ -128,7 +128,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
     }
 
     if (cart.length === 0) {
-      setErrorMessage('Your cart is empty.');
+      setErrorMessage('{isBn ? 'আপনার কার্ট খালি।' : 'Your cart is empty.'}');
       return;
     }
 
@@ -186,11 +186,11 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
             <div className="flex items-center gap-2">
               <Lock className="w-4 h-4 text-[#A37835]" />
               <h2 className="font-display text-xl font-semibold text-stone-900">
-                Secure Checkout & Order Placement
+                {isBn ? 'নিরাপদ অর্ডার ও নিশ্চিতকরণ' : 'Secure Checkout & Order Placement'}
               </h2>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              Review your tableware order details and shipping address
+              {isBn ? 'আপনার অর্ডার, ঠিকানা ও ডেলিভারি তথ্য যাচাই করে অর্ডার নিশ্চিত করুন' : 'Review your tableware order details and shipping address'}
             </p>
           </div>
           <button
@@ -213,13 +213,13 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
           <div className="space-y-4">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-900 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center text-[10px]">1</span>
-              <span>Customer Information</span>
+              <span>{isBn ? 'কাস্টমারের তথ্য' : 'Customer Information'}</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Full Name <span className="text-rose-500">*</span>
+                  {isBn ? 'পূর্ণ নাম' : 'Full Name'} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -233,7 +233,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
 
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Mobile Number <span className="text-rose-500">*</span>
+                  {isBn ? 'মোবাইল নম্বর' : 'Mobile Number'} <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -247,7 +247,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Email Address (for invoice & tracking updates)
+                  {isBn ? 'ইমেইল ঠিকানা (ইনভয়েস ও ট্র্যাকিংয়ের জন্য)' : 'Email Address (for invoice & tracking updates)'}
                 </label>
                 <input
                   type="email"
@@ -264,26 +264,26 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
           <div className="space-y-4 pt-4 border-t border-stone-200">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-900 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center text-[10px]">2</span>
-              <span>Delivery Address & Location</span>
+              <span>{isBn ? 'ডেলিভারি ঠিকানা ও অবস্থান' : 'Delivery Address & Location'}</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Division <span className="text-rose-500">*</span>
+                  {isBn ? 'বিভাগ' : 'Division'} <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={division}
                   onChange={(e) => {
                     const nextDiv = e.target.value;
-                    setDivision(nextDiv);
-                    setDistrict(DISTRICTS_MAP[nextDiv]?.[0] || 'Other');
+                    set{isBn ? 'বিভাগ' : 'Division'}(nextDiv);
+                    set{isBn ? 'জেলা' : 'District'}(DISTRICTS_MAP[nextDiv]?.[0] || 'Other');
                   }}
                   className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:border-[#BE9346]"
                 >
                   {BANGLADESH_DIVISIONS.map((div) => (
                     <option key={div} value={div}>
-                      {div} Division
+                      {div} {isBn ? 'বিভাগ' : 'Division'}
                     </option>
                   ))}
                 </select>
@@ -291,11 +291,11 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
 
               <div>
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  District <span className="text-rose-500">*</span>
+                  {isBn ? 'জেলা' : 'District'} <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
+                  onChange={(e) => set{isBn ? 'জেলা' : 'District'}(e.target.value)}
                   className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-lg focus:bg-white focus:outline-none focus:border-[#BE9346]"
                 >
                   {(DISTRICTS_MAP[division] || [division]).map((dist) => (
@@ -308,7 +308,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Full Street Address (House, Road, Area, Landmark) <span className="text-rose-500">*</span>
+                  {isBn ? 'পূর্ণ ঠিকানা (বাড়ি, রোড, এলাকা, ল্যান্ডমার্ক)' : 'Full Street Address (House, Road, Area, Landmark)'} <span className="text-rose-500">*</span>
                 </label>
                 <textarea
                   rows={2}
@@ -322,7 +322,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Delivery Instructions (Optional)
+                  {isBn ? 'ডেলিভারি নির্দেশনা (ঐচ্ছিক)' : 'Delivery Instructions (Optional)'}
                 </label>
                 <input
                   type="text"
@@ -335,7 +335,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
             </div>
           </div>
 
-          {/* Section 3: Payment Method Selection */}
+          {/* Section 3: {isBn ? 'পেমেন্ট পদ্ধতি' : 'Payment Method'} Selection */}
           <div className="space-y-4 pt-4 border-t border-stone-200">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-stone-900 flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center text-[10px]">3</span>
@@ -562,7 +562,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
             )}
           </div>
 
-          {/* Section 5: Order Summary Table */}
+          {/* Section 5: {isBn ? 'অর্ডারের সারাংশ' : 'Order Summary'} Table */}
           <div className="pt-4 border-t border-stone-200 bg-[#FAF8F5] -mx-6 -mb-6 p-6 space-y-3">
             <h4 className="text-xs font-semibold text-stone-900 uppercase tracking-wider">
               Order Items Summary ({cart.reduce((a, b) => a + b.quantity, 0)} items)
@@ -613,7 +613,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
               className="w-full py-4 text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 disabled:opacity-50 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
             >
               <CheckCircle2 className="w-4 h-4 text-[#EDE0C2]" />
-              <span>{isSubmitting ? 'Recording Order in Database...' : `Confirm & Place Order · ৳${finalTotal.toLocaleString()}`}</span>
+              <span>{isSubmitting ? 'Recording Order in Database...' : `Confirm & {isBn ? 'অর্ডার নিশ্চিত করুন' : 'Place Order'} · ৳${finalTotal.toLocaleString()}`}</span>
             </button>
           </div>
         </form>
