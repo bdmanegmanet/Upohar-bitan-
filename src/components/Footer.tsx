@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Package, ShieldCheck, Heart, Phone, Mail, MapPin, MessageCircle, ExternalLink } from 'lucide-react';
+import { Package, ShieldCheck, Heart, Phone, Mail, MapPin, MessageCircle, ExternalLink, Facebook } from 'lucide-react';
 import { ProductCategory } from '../types';
 
 export const Footer: React.FC = () => {
@@ -38,6 +38,19 @@ export const Footer: React.FC = () => {
                 ? 'নীলফামারীর বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান। প্রতিদিনের প্রয়োজনীয় ও রুচিশীল ক্রোকারিজ, কিচেন সামগ্রী এবং আকর্ষণীয় গিফট আইটেম।'
                 : 'Trusted crockery and luxury gift shop in Nilphamari. Supplying everyday household tableware, premium kitchen essentials, and charming gifts.'}
             </p>
+
+            <div className="flex items-center gap-2 pt-1">
+              <a href={settings.facebookUrl || 'https://www.facebook.com/share/19ga8RpbsZ/'} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="social-icon-btn !bg-stone-900 !border-stone-700 !text-stone-300 hover:!text-white">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="https://wa.me/8801712470028?text=Hello%20Upohar%20Bitan" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="social-icon-btn social-whatsapp !bg-stone-900 !border-stone-700">
+                <MessageCircle className="w-4 h-4" />
+              </a>
+              <a href="tel:01712470028" aria-label="Call" className="social-icon-btn social-phone !bg-stone-900 !border-stone-700">
+                <Phone className="w-4 h-4" />
+              </a>
+              <span className="text-[11px] text-stone-500 ml-1">সরাসরি যোগাযোগ</span>
+            </div>
 
             <div className="space-y-2 text-stone-300 pt-1 text-[11px]">
               <div className="flex items-start gap-2">
