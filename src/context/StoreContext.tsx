@@ -65,6 +65,7 @@ interface StoreContextType {
   // Settings
   settings: StoreSettings;
   updateSettings: (newSettings: StoreSettings) => void;
+  refreshAllData: () => Promise<void>;
 
   // Tracking
   trackingOrderId: string;
@@ -264,9 +265,33 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Category "${target?.name || ''}" removed`);
   }, [categories]);
 
-  useEffect(() => {
-    refreshProducts();
+  const refreshAllData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await api.bootstrap();
+      if (data.products.length) setProducts(data.products);
+      if (data.settings) {
+        const normalizedSettings = {
+          ...data.settings,
+          heroSlides: (data.settings.heroSlides || []).map((slide) => ({
+            ...slide,
+            image: normalizeImageUrl(slide.image),
+          })),
+        };
+        setSettings(normalizedSettings);
+      }
+      if (data.categories?.length) setCategories(data.categories);
+    } catch (e) {
+      console.warn('Bootstrap sync failed; local cache retained.', e);
+      await refreshProducts();
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    refreshAllData();
+  }, [refreshAllData]);
 
   useEffect(() => {
     localStorage.setItem('aura_crockery_cart_v1', JSON.stringify(cart));
@@ -324,8 +349,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const buyNowProduct = (product: Product, quantity = 1) => {
-    addToCart(product, quantity);
+    setCart([{
+      product,
+      quantity: Math.min(Math.max(1, quantity), product.stock),
+      selectedColor: product.color,
+      selectedSize: product.size,
+    }]);
+    setAppliedCoupon(null);
     setIsCartOpen(false);
+    setCurrentPage('checkout');
     setIsCheckoutOpen(true);
   };
 
