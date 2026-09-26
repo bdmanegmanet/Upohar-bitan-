@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, Save, RefreshCw, Trash2, UploadCloud, Database } from 'lucide-react';
+import { Plus, Save, RefreshCw, Trash2, UploadCloud, Database, CheckCircle2, AlertCircle, Clock3 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { api } from '../services/api';
 import { FAQItem } from '../types';
@@ -10,28 +10,42 @@ export const ContentFaqManager: React.FC = () => {
   const content = settings.content || { aboutBn:'', aboutEn:'', deliveryBn:'', deliveryEn:'', returnsBn:'', returnsEn:'', faq:[] };
   const [draft, setDraft] = useState(content);
   const [busy, setBusy] = useState(false);
+  const [syncState, setSyncState] = useState<'idle'|'success'|'error'>('idle');
+  const [syncMessage, setSyncMessage] = useState('');
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
 
   React.useEffect(() => setDraft(content), [content]);
 
   const save = async () => {
-    setBusy(true);
+    if (busy) return;
+    setBusy(true); setSyncState('idle'); setSyncMessage('');
     try {
-      updateSettings({ ...settings, content: draft });
-      await api.syncAllToSheets({ ...settings, content: draft });
-      showToast(isBn ? 'কনটেন্ট ও FAQ Google Sheets-এ সংরক্ষণ হয়েছে' : 'Content and FAQ saved to Google Sheets');
-    } finally {
-      setBusy(false);
-    }
+      const nextSettings = { ...settings, content: draft };
+      updateSettings(nextSettings);
+      const result = await api.syncAllToSheets(nextSettings);
+      setSyncState('success');
+      setLastSyncedAt(result.syncedAt);
+      setSyncMessage(isBn ? 'সব তথ্য সফলভাবে Google Sheets-এ Push হয়েছে।' : 'All data was successfully pushed to Google Sheets.');
+      showToast(isBn ? 'Google Sheets Push সফল হয়েছে' : 'Google Sheets push completed');
+    } catch (error: any) {
+      setSyncState('error');
+      setSyncMessage(error?.message || (isBn ? 'Push ব্যর্থ হয়েছে' : 'Push failed'));
+    } finally { setBusy(false); }
   };
 
   const pull = async () => {
-    setBusy(true);
+    if (busy) return;
+    setBusy(true); setSyncState('idle'); setSyncMessage('');
     try {
       await refreshAllData();
-      showToast(isBn ? 'Google Sheets থেকে সর্বশেষ তথ্য আনা হয়েছে' : 'Latest data pulled from Google Sheets');
-    } finally {
-      setBusy(false);
-    }
+      setSyncState('success');
+      setLastSyncedAt(new Date().toISOString());
+      setSyncMessage(isBn ? 'Google Sheets থেকে সর্বশেষ তথ্য সফলভাবে Sync হয়েছে।' : 'Latest data was successfully synced from Google Sheets.');
+      showToast(isBn ? 'Sheets Sync সফল হয়েছে' : 'Sheets sync completed');
+    } catch (error: any) {
+      setSyncState('error');
+      setSyncMessage(error?.message || (isBn ? 'Sync ব্যর্থ হয়েছে' : 'Sync failed'));
+    } finally { setBusy(false); }
   };
 
   const updateFaq = (id: string, patch: Partial<FAQItem>) =>
@@ -62,12 +76,14 @@ export const ContentFaqManager: React.FC = () => {
             <h3 className="font-display text-xl font-semibold text-stone-900">দোকান পরিচিতি ও নীতিমালা</h3>
             <p className="text-xs text-stone-500 mt-1">বাংলা ও English—দুই ভাষার কনটেন্ট এখান থেকেই নিয়ন্ত্রণ করুন।</p>
           </div>
-          <div className="flex gap-2">
-            <button onClick={pull} disabled={busy} className="px-3 py-2 rounded-lg border border-stone-300 text-xs flex items-center gap-1.5">
-              <RefreshCw className="w-3.5 h-3.5" /> Sheets থেকে Sync
+          <div className="flex flex-wrap gap-2">
+            <button onClick={pull} disabled={busy} className="group px-3.5 py-2.5 rounded-xl border border-stone-300 bg-white hover:bg-stone-50 text-xs font-semibold flex items-center gap-2 disabled:opacity-50">
+              <RefreshCw className={`w-4 h-4 ${busy ? 'animate-spin' : 'group-hover:rotate-180 transition-transform'}`} />
+              {busy ? 'Sync হচ্ছে…' : 'Sheets থেকে Sync'}
             </button>
-            <button onClick={save} disabled={busy} className="px-3 py-2 rounded-lg bg-stone-900 text-white text-xs flex items-center gap-1.5">
-              <UploadCloud className="w-3.5 h-3.5" /> Sheets-এ Push
+            <button onClick={save} disabled={busy} className="group px-3.5 py-2.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold flex items-center gap-2 disabled:opacity-50">
+              <UploadCloud className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+              {busy ? 'Push হচ্ছে…' : 'Sheets-এ Push'}
             </button>
           </div>
         </div>
@@ -126,6 +142,17 @@ export const ContentFaqManager: React.FC = () => {
         <button onClick={save} disabled={busy} className="mt-5 w-full py-3 rounded-xl bg-stone-900 text-white text-sm font-semibold flex items-center justify-center gap-2">
           <Save className="w-4 h-4" /> {busy ? 'Sync হচ্ছে…' : 'সব কনটেন্ট ও FAQ সংরক্ষণ + Sync'}
         </button>
+      </div>
+
+      <div className={`flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border ${syncState==='success'?'bg-emerald-50 border-emerald-200':syncState==='error'?'bg-rose-50 border-rose-200':'bg-stone-50 border-stone-200'}`}>
+        <div className="flex items-start gap-2">
+          {syncState==='success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5" /> : syncState==='error' ? <AlertCircle className="w-4 h-4 text-rose-600 mt-0.5" /> : <Database className="w-4 h-4 text-stone-500 mt-0.5" />}
+          <div>
+            <p className="text-xs font-semibold text-stone-800">{syncState==='success'?'Sync সফল':syncState==='error'?'Sync ব্যর্থ':'Google Sheets Sync Center'}</p>
+            <p className="text-[11px] text-stone-600 mt-0.5">{syncMessage || 'Push করলে website-এর settings, content, FAQ, slider ও coupons Sheets-এ যাচাই করে সংরক্ষণ হবে।'}</p>
+          </div>
+        </div>
+        {lastSyncedAt && <div className="text-[10px] text-stone-500 flex items-center gap-1"><Clock3 className="w-3 h-3" /> {new Date(lastSyncedAt).toLocaleString()}</div>}
       </div>
 
       <div className="p-4 rounded-xl bg-[#F7F1E1] border border-[#EDE0C2] text-xs text-stone-700 flex gap-2">
