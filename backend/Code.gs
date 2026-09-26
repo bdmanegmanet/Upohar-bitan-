@@ -725,24 +725,64 @@ function updateContent(data) {
 
 function saveFAQ(data) {
   var sheet=getSpreadsheet().getSheetByName(SHEETS.FAQ); if(!sheet) return {success:false,message:'FAQ sheet missing'};
-  var rows=Array.isArray(data)?data:(data.items||[]); if(!rows.length) return {success:false,message:'No FAQ data'};
+  var rows=Array.isArray(data)?data:(data.items||[]);
   if(sheet.getLastRow()>1) sheet.getRange(2,1,sheet.getLastRow()-1,8).clearContent();
+  if(!rows.length) return {success:true,message:'FAQ cleared',data:[]};
   var values=rows.map(function(f,i){return [f.id||('FAQ-'+(i+1)),f.questionBn||'',f.answerBn||'',f.questionEn||'',f.answerEn||'',f.active!==false?'TRUE':'FALSE',Number(f.sortOrder)||i+1,new Date()];});
   sheet.getRange(2,1,values.length,8).setValues(values); return {success:true,message:'FAQ synced',data:values};
 }
 
 function syncAll(data) {
   setupDatabase();
-  var result = { settings:false, content:false, faq:false, coupons:false };
-  if(data && data.settings) { updateSettings(data.settings); result.settings=true; }
-  if(data && data.content) { updateContent(data.content); result.content=true; }
-  if(data && data.faq) { saveFAQ(data.faq); result.faq=true; }
-  if(data && data.coupons) { saveCoupons(data.coupons); result.coupons=true; }
-  return {
-    success:true,
-    message:'All data synchronized',
-    timestamp:new Date().toISOString(),
-    synced:result
-  };
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var result = { settings:false, content:false, faq:false, coupons:false };
+    var errors = [];
+
+    if(data && data.settings) {
+      var r1 = updateSettings(data.settings);
+      result.settings = !!(r1 && r1.success);
+      if(!result.settings) errors.push('settings: ' + ((r1 && r1.message) || 'failed'));
+    }
+
+    if(data && data.content) {
+      var contentData = {};
+      for (var key in data.content) {
+        var value = data.content[key];
+        if (key === 'heroSlides' && Array.isArray(data.heroSlides)) {
+          value = { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) };
+        }
+        contentData[key] = (value && typeof value === 'object')
+          ? { bn: value.bn || '', en: value.en || '' }
+          : { bn: String(value || ''), en: String(value || '') };
+      }
+      if (Array.isArray(data.heroSlides)) {
+        contentData.heroSlides = { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) };
+      }
+      var r2 = updateContent(contentData);
+      result.content = !!(r2 && r2.success);
+      if(!result.content) errors.push('content: ' + ((r2 && r2.message) || 'failed'));
+    }
+
+    if(data && Array.isArray(data.faq)) {
+      var r3 = saveFAQ(data.faq);
+      result.faq = !!(r3 && r3.success);
+      if(!result.faq) errors.push('faq: ' + ((r3 && r3.message) || 'failed'));
+    }
+
+    if(data && Array.isArray(data.coupons)) {
+      var r4 = saveCoupons(data.coupons);
+      result.coupons = !!(r4 && r4.success);
+      if(!result.coupons) errors.push('coupons: ' + ((r4 && r4.message) || 'failed'));
+    }
+
+    if(errors.length) {
+      return { success:false, message:'Sync আংশিক/ব্যর্থ: ' + errors.join(' | '), timestamp:new Date().toISOString(), synced:result };
+    }
+    return { success:true, message:'All data synchronized and verified', timestamp:new Date().toISOString(), synced:result };
+  } finally {
+    lock.releaseLock();
+  }
 }
 
