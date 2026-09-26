@@ -14,6 +14,7 @@ import {
   Sparkles,
   Globe,
   MessageCircle,
+  Facebook,
 } from 'lucide-react';
 import { ProductCategory, Product } from '../types';
 
@@ -144,9 +145,9 @@ export const Navbar: React.FC = () => {
   return (
     <>
       {/* Top Banner Notice */}
-      <div className="bg-[#1C1917] text-[#EDE0C2] text-xs py-2 px-4 border-b border-[#BE9346]/20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="truncate text-center w-full sm:text-left sm:w-auto font-medium tracking-wide">
+      <div className="relative overflow-hidden bg-[#1C1917] text-[#EDE0C2] text-xs py-2 px-4 border-b border-[#BE9346]/20 animate-banner-in">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="truncate text-center w-full sm:text-left sm:w-auto font-medium tracking-wide animate-banner-text">
             {settings.bannerNotice || '✨ উপহার বিতান - নীলফামারীর বিশ্বস্ত ক্রোকারিজ ও গিফট সামগ্রীর প্রতিষ্ঠান | কল বা WhatsApp: 01712470028'}
           </div>
           <div className="hidden sm:flex items-center gap-4 text-stone-300 text-xs shrink-0">
@@ -180,12 +181,12 @@ export const Navbar: React.FC = () => {
       </div>
 
       {/* Main Top Bar (3-Zone Top Bar Contract) */}
-      <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-200">
+      <header className="sticky top-0 z-40 bg-[#FAF8F5]/95 backdrop-blur-md border-b border-stone-200 animate-header-reveal">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Zone 1: Single Text Element Wordmark */}
           <button
             onClick={() => handleNavClick('home', 'All')}
-            className="text-left group cursor-pointer focus:outline-none"
+            className="text-left group cursor-pointer focus:outline-none animate-logo-float"
           >
             <span className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 group-hover:text-[#A37835] transition-colors">
               উপহার বিতান
@@ -217,6 +218,29 @@ export const Navbar: React.FC = () => {
 
           {/* Zone 3: Actions & Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick social/contact actions */}
+            <div className="hidden md:flex items-center gap-1.5 mr-1 pr-2 border-r border-stone-200">
+              <a
+                href={settings.facebookUrl || 'https://www.facebook.com/share/19ga8RpbsZ/'}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                title="Facebook"
+                className="social-icon-btn"
+              >
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a
+                href="https://wa.me/8801712470028?text=Hello%20Upohar%20Bitan"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="WhatsApp"
+                title="WhatsApp"
+                className="social-icon-btn social-whatsapp"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </a>
+            </div>
             {/* Language Switcher Button (বাংলা / English) */}
             <button
               onClick={toggleLanguage}
@@ -452,7 +476,7 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile Dropdown Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-stone-200 bg-[#FAF8F5] px-4 pt-3 pb-6 shadow-lg">
+          <div className="lg:hidden border-t border-stone-200 bg-[#FAF8F5] px-4 pt-3 pb-6 shadow-lg animate-mobile-menu">
             <div className="flex flex-col space-y-3">
               {dynamicLinks.map((link) => (
                 <button
@@ -465,6 +489,34 @@ export const Navbar: React.FC = () => {
                 </button>
               ))}
               <div className="pt-3 border-t border-stone-200 flex flex-col gap-2">
+                <div className="flex items-center gap-2 px-3 pt-1">
+                  <a
+                    href={settings.facebookUrl || 'https://www.facebook.com/share/19ga8RpbsZ/'}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Facebook"
+                    className="social-icon-btn"
+                  >
+                    <Facebook className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="https://wa.me/8801712470028?text=Hello%20Upohar%20Bitan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp"
+                    className="social-icon-btn social-whatsapp"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="tel:01712470028"
+                    aria-label="Call Upohar Bitan"
+                    className="social-icon-btn social-phone"
+                  >
+                    <Phone className="w-4 h-4" />
+                  </a>
+                  <span className="text-xs text-stone-500 ml-1">সরাসরি যোগাযোগ</span>
+                </div>
                 <button
                   onClick={() => {
                     setIsTrackingOpen(true);
