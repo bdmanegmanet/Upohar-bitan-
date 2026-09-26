@@ -12,7 +12,9 @@ export const ContentFaqManager: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [syncState, setSyncState] = useState<'idle'|'success'|'error'>('idle');
   const [syncMessage, setSyncMessage] = useState('');
-  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(() => {
+    try { return localStorage.getItem('upohar_sheets_last_sync') || null; } catch { return null; }
+  });
 
   React.useEffect(() => setDraft(content), [content]);
 
@@ -25,7 +27,8 @@ export const ContentFaqManager: React.FC = () => {
       const result = await api.syncAllToSheets(nextSettings);
       setSyncState('success');
       setLastSyncedAt(result.syncedAt);
-      setSyncMessage(isBn ? 'সব তথ্য সফলভাবে Google Sheets-এ Push হয়েছে।' : 'All data was successfully pushed to Google Sheets.');
+      try { localStorage.setItem('upohar_sheets_last_sync', result.syncedAt); } catch {}
+      setSyncMessage(isBn ? 'সব তথ্য সফলভাবে Google Sheets-এ Push হয়েছে এবং server response যাচাই হয়েছে।' : 'All data was pushed and the server response was verified.');
       showToast(isBn ? 'Google Sheets Push সফল হয়েছে' : 'Google Sheets push completed');
     } catch (error: any) {
       setSyncState('error');
@@ -37,9 +40,12 @@ export const ContentFaqManager: React.FC = () => {
     if (busy) return;
     setBusy(true); setSyncState('idle'); setSyncMessage('');
     try {
+      await api.verifySheetsConnection(settings);
       await refreshAllData();
+      const syncedAt = new Date().toISOString();
       setSyncState('success');
-      setLastSyncedAt(new Date().toISOString());
+      setLastSyncedAt(syncedAt);
+      try { localStorage.setItem('upohar_sheets_last_sync', syncedAt); } catch {}
       setSyncMessage(isBn ? 'Google Sheets থেকে সর্বশেষ তথ্য সফলভাবে Sync হয়েছে।' : 'Latest data was successfully synced from Google Sheets.');
       showToast(isBn ? 'Sheets Sync সফল হয়েছে' : 'Sheets sync completed');
     } catch (error: any) {
