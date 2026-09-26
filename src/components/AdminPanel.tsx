@@ -964,6 +964,7 @@ export const AdminPanel: React.FC = () => {
       {activeTab === 'settings' && (
         <div className="space-y-6 max-w-5xl">
           <HomepageSliderManager />
+          <ContentFaqManager />
           <FAQManager />
           <div className="bg-white p-6 rounded-xl border border-stone-200 shadow-xs space-y-6 max-w-4xl">
           <div className="border-b border-stone-200 pb-3">
