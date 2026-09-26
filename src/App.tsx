@@ -27,6 +27,7 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { OrderSuccessModal } from './components/OrderSuccessModal';
 import { OrderTrackingModal } from './components/OrderTrackingModal';
 import { Footer } from './components/Footer';
+import { HeroSlider } from './components/HeroSlider';
 
 const AppContent: React.FC = () => {
   const { currentPage, toastMessage } = useStore();
@@ -41,6 +42,7 @@ const AppContent: React.FC = () => {
         {currentPage === 'home' && (
           <>
             <Hero />
+            <HeroSlider />
             <CategoryShowcase />
             <FeaturedSection />
             <CraftsmanshipStory />
