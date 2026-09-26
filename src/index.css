@@ -2,7 +2,7 @@
 
 @theme {
   --font-serif: 'Noto Serif Bengali', 'Cormorant Garamond', 'Noto Serif', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Noto Serif Bengali', 'Noto Serif', Georgia, serif;
   --color-gold-50: #fcf9f2;
   --color-gold-100: #f7f1e1;
   --color-gold-200: #ede0c2;
@@ -18,7 +18,7 @@ html {
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Noto Serif Bengali', 'Noto Serif', Georgia, serif;
   background-color: #FAF8F5;
   color: #1c1917;
 }
