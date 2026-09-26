@@ -316,6 +316,12 @@ export const api = {
             returnsEn: json.data.content.returns?.en || localSettings.content?.returnsEn,
             faq: Array.isArray(json.data?.faq) ? json.data.faq : (localSettings.content?.faq || []),
           } : {}),
+          heroSlides: Array.isArray(json.data?.heroSlides)
+            ? json.data.heroSlides
+            : (() => {
+                const rawSlides = json.data?.content?.heroSlides?.bn || json.data?.content?.heroSlides?.en || '';
+                try { return JSON.parse(rawSlides || '[]'); } catch { return localSettings.heroSlides || []; }
+              })(),
         },
       };
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
