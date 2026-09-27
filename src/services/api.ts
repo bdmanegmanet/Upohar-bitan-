@@ -709,6 +709,7 @@ export const api = {
       },
       content,
       faq: settings.content?.faq || [],
+      heroSlides: settings.heroSlides || [],
       coupons: this.getCoupons(),
     };
 
