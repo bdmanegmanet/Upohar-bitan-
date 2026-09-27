@@ -446,7 +446,7 @@ export const AdminPanel: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="font-display text-xl sm:text-2xl font-semibold text-stone-900">
-              Aura Tableware & Crockery Admin
+              Upohar Bitan Admin
             </span>
             <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">
               Live Synchronized
