@@ -45,11 +45,12 @@ function setupDatabase() {
   // 1. Products Sheet
   var productSheet = getOrCreateSheet(ss, SHEETS.PRODUCTS);
   var productHeaders = [
-    'Product_ID', 'Product_Name', 'Category', 'Short_Description', 'Description',
+    'Product_ID', 'Product_Name', 'Category', 'Subcategory', 'Short_Description', 'Description',
     'Price', 'Discount_Price', 'Stock', 'SKU', 'Images',
     'Material', 'Size', 'Color', 'Rating', 'Status', 'Created_Date'
   ];
   setSheetHeaders(productSheet, productHeaders);
+  ensureProductSubcategoryColumn(productSheet);
 
   // 2. Orders Sheet
   var orderSheet = getOrCreateSheet(ss, SHEETS.ORDERS);
@@ -75,7 +76,7 @@ function setupDatabase() {
   // Seed default settings if empty
   if (settingsSheet.getLastRow() <= 1) {
     var defaultSettings = [
-      ['Store_Name', 'Aura Tableware & Crockery'],
+      ['Store_Name', 'Upohar Bitan'],
       ['Store_Phone', '+880 1712 345678'],
       ['WhatsApp_Number', '+880 1712 345678'],
       ['Store_Email', 'concierge@auratableware.com'],
@@ -312,8 +313,31 @@ function getProductById(id) {
 }
 
 /**
+ * Ensure existing Products sheets have the Subcategory column.
+ * If the column is missing, insert it immediately after Category
+ * without disturbing existing product data.
+ */
+function ensureProductSubcategoryColumn(sheet) {
+  var lastCol = sheet.getLastColumn();
+  if (lastCol === 0) return;
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  if (headers.indexOf('Subcategory') !== -1) return;
+
+  var categoryCol = headers.indexOf('Category');
+  if (categoryCol === -1) {
+    return;
+  }
+
+  // categoryCol is zero-based; insert after Category.
+  sheet.insertColumnAfter(categoryCol + 1);
+  sheet.getRange(1, categoryCol + 2).setValue('Subcategory');
+  sheet.getRange(1, categoryCol + 2).setFontWeight('bold').setBackground('#F4EAD4');
+}
+
+/**
  * Add a new product to the Products sheet
  */
+
 function addProduct(product) {
   var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
@@ -325,6 +349,7 @@ function addProduct(product) {
     newId,
     product.Product_Name || '',
     product.Category || 'Plates',
+    product.Subcategory || product.SubCategory || product.subCategory || '',
     product.Short_Description || '',
     product.Description || '',
     Number(product.Price || 0),
@@ -363,6 +388,11 @@ function updateProduct(product) {
       // Update cells
       if (product.Product_Name !== undefined) sheet.getRange(rowIndex, headers.indexOf('Product_Name') + 1).setValue(product.Product_Name);
       if (product.Category !== undefined) sheet.getRange(rowIndex, headers.indexOf('Category') + 1).setValue(product.Category);
+      if (product.Subcategory !== undefined || product.SubCategory !== undefined || product.subCategory !== undefined) {
+        var subcategoryValue = product.Subcategory !== undefined ? product.Subcategory : (product.SubCategory !== undefined ? product.SubCategory : product.subCategory);
+        var subcategoryCol = headers.indexOf('Subcategory');
+        if (subcategoryCol !== -1) sheet.getRange(rowIndex, subcategoryCol + 1).setValue(subcategoryValue || '');
+      }
       if (product.Short_Description !== undefined) sheet.getRange(rowIndex, headers.indexOf('Short_Description') + 1).setValue(product.Short_Description);
       if (product.Description !== undefined) sheet.getRange(rowIndex, headers.indexOf('Description') + 1).setValue(product.Description);
       if (product.Price !== undefined) sheet.getRange(rowIndex, headers.indexOf('Price') + 1).setValue(Number(product.Price));
