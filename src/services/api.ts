@@ -309,8 +309,16 @@ export const api = {
         ...(raw.Nagad_Number ? { nagadMerchantNumber: raw.Nagad_Number } : {}),
         ...(raw.Currency ? { currency: raw.Currency } : {}),
       } as StoreSettings;
+      const parsedHeroSlides = Array.isArray(json.data?.heroSlides)
+        ? json.data.heroSlides
+        : (() => {
+            const rawSlides = json.data?.content?.heroSlides?.bn || json.data?.content?.heroSlides?.en || '';
+            try { return JSON.parse(rawSlides || '[]'); } catch { return []; }
+          })();
+
       const mergedSettings = {
         ...remoteSettings,
+        heroSlides: parsedHeroSlides,
         content: {
           ...(localSettings.content || {}),
           ...(json.data?.content ? {
@@ -322,12 +330,7 @@ export const api = {
             returnsEn: json.data.content.returns?.en || localSettings.content?.returnsEn,
             faq: Array.isArray(json.data?.faq) ? json.data.faq : (localSettings.content?.faq || []),
           } : {}),
-          heroSlides: Array.isArray(json.data?.heroSlides)
-            ? json.data.heroSlides
-            : (() => {
-                const rawSlides = json.data?.content?.heroSlides?.bn || json.data?.content?.heroSlides?.en || '';
-                try { return JSON.parse(rawSlides || '[]'); } catch { return localSettings.heroSlides || []; }
-              })(),
+          heroSlides: parsedHeroSlides.length ? parsedHeroSlides : (localSettings.heroSlides || []),
         },
       };
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
