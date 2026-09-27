@@ -2,9 +2,12 @@ import React from 'react';
 import { Trash2, Plus, Power } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { normalizeImageUrl } from '../utils/imageUrl';
+import { api } from '../services/api';
 
 export const HomepageSliderManager: React.FC = () => {
-  const { settings, updateSettings } = useStore();
+  const { settings, updateSettings, showToast } = useStore();
+  const [saving, setSaving] = React.useState(false);
+  const [saveMessage, setSaveMessage] = React.useState('');
   const slides = settings.heroSlides || [];
 
   const updateSlide = (id: string, patch: Record<string, unknown>) => {
@@ -12,6 +15,27 @@ export const HomepageSliderManager: React.FC = () => {
       ...settings,
       heroSlides: slides.map((slide) => slide.id === id ? { ...slide, ...patch } : slide),
     });
+  };
+
+  const saveSlides = async () => {
+    if (saving) return;
+    setSaving(true);
+    setSaveMessage('');
+    try {
+      const normalizedSlides = (settings.heroSlides || []).map((slide) => ({
+        ...slide,
+        image: normalizeImageUrl(slide.image),
+      }));
+      const nextSettings = { ...settings, heroSlides: normalizedSlides };
+      updateSettings(nextSettings);
+      const result = await api.syncAllToSheets(nextSettings);
+      setSaveMessage('স্লাইড Google Sheets-এ সফলভাবে সংরক্ষিত হয়েছে।');
+      showToast('Homepage slider Sheets-এ সংরক্ষণ হয়েছে');
+    } catch (e: any) {
+      setSaveMessage(e?.message || 'স্লাইড সংরক্ষণ করা যায়নি।');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const addSlide = () => {
@@ -45,7 +69,7 @@ export const HomepageSliderManager: React.FC = () => {
       <div className="space-y-4">
         {slides.map((slide) => (
           <div key={slide.id} className="grid grid-cols-1 lg:grid-cols-[180px_1fr_auto] gap-4 p-4 rounded-xl bg-[#FAF8F5] border border-stone-200">
-            <div className="aspect-video rounded-lg overflow-hidden bg-stone-200">
+            <div className="aspect-video w-full rounded-lg overflow-hidden bg-stone-200">
               {slide.image ? (
                 <img src={normalizeImageUrl(slide.image)} alt={slide.titleBn || 'স্লাইড'} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               ) : (
@@ -80,9 +104,15 @@ export const HomepageSliderManager: React.FC = () => {
         ))}
       </div>
 
-      <button type="button" onClick={addSlide} className="px-4 py-2.5 text-xs font-semibold text-white bg-stone-900 rounded-lg flex items-center gap-1.5">
-        <Plus className="w-4 h-4" /> নতুন স্লাইড যোগ করুন
-      </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" onClick={addSlide} className="px-4 py-2.5 text-xs font-semibold text-white bg-stone-900 rounded-lg flex items-center gap-1.5">
+          <Plus className="w-4 h-4" /> নতুন স্লাইড যোগ করুন
+        </button>
+        <button type="button" onClick={saveSlides} disabled={saving} className="px-4 py-2.5 text-xs font-semibold text-white bg-[#A37835] rounded-lg disabled:opacity-50">
+          {saving ? 'Sheets-এ সংরক্ষণ হচ্ছে…' : 'স্লাইড সংরক্ষণ + Sheets Sync'}
+        </button>
+      </div>
+      {saveMessage && <p className="text-xs text-stone-600">{saveMessage}</p>}
     </div>
   );
 };
