@@ -309,16 +309,28 @@ export const api = {
         ...(raw.Nagad_Number ? { nagadMerchantNumber: raw.Nagad_Number } : {}),
         ...(raw.Currency ? { currency: raw.Currency } : {}),
       } as StoreSettings;
-      const parsedHeroSlides = Array.isArray(json.data?.heroSlides)
-        ? json.data.heroSlides
-        : (() => {
-            const rawSlides = json.data?.content?.heroSlides?.bn || json.data?.content?.heroSlides?.en || '';
-            try { return JSON.parse(rawSlides || '[]'); } catch { return []; }
-          })();
+      // A deployed/older GAS version may not return heroSlides at all.
+      // In that case, never overwrite the locally saved Admin slider.
+      // If the server explicitly returns heroSlides (including []), that
+      // server value is authoritative.
+      const hasTopLevelHeroSlides = Array.isArray(json.data?.heroSlides);
+      const rawHeroSlides = json.data?.content?.heroSlides?.bn || json.data?.content?.heroSlides?.en || '';
+      const hasContentHeroSlides = typeof rawHeroSlides === 'string' && rawHeroSlides.trim() !== '';
+      let parsedHeroSlides: any[] = [];
+      if (hasTopLevelHeroSlides) {
+        parsedHeroSlides = json.data.heroSlides;
+      } else if (hasContentHeroSlides) {
+        try { parsedHeroSlides = JSON.parse(rawHeroSlides || '[]'); } catch { parsedHeroSlides = []; }
+      }
+
+      const serverHasHeroSlides = hasTopLevelHeroSlides || hasContentHeroSlides;
+      const effectiveHeroSlides = serverHasHeroSlides
+        ? parsedHeroSlides
+        : (Array.isArray(localSettings.heroSlides) ? localSettings.heroSlides : []);
 
       const mergedSettings = {
         ...remoteSettings,
-        heroSlides: parsedHeroSlides,
+        heroSlides: effectiveHeroSlides,
         content: {
           ...(localSettings.content || {}),
           ...(json.data?.content ? {
@@ -330,7 +342,7 @@ export const api = {
             returnsEn: json.data.content.returns?.en || localSettings.content?.returnsEn,
             faq: Array.isArray(json.data?.faq) ? json.data.faq : (localSettings.content?.faq || []),
           } : {}),
-          heroSlides: parsedHeroSlides.length ? parsedHeroSlides : (localSettings.heroSlides || []),
+          heroSlides: effectiveHeroSlides,
         },
       };
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
