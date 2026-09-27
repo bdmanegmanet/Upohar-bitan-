@@ -776,19 +776,24 @@ function syncAll(data) {
       if(!result.settings) errors.push('settings: ' + ((r1 && r1.message) || 'failed'));
     }
 
+    // Hero slider is synced independently so it cannot be lost with Content updates.
+    if (Array.isArray(data && data.heroSlides)) {
+      var sliderContent = {
+        heroSlides: { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) }
+      };
+      var sliderResult = updateContent(sliderContent);
+      result.content = !!(sliderResult && sliderResult.success);
+      if(!result.content) errors.push('heroSlides: ' + ((sliderResult && sliderResult.message) || 'failed'));
+    }
+
     if(data && data.content) {
       var contentData = {};
       for (var key in data.content) {
         var value = data.content[key];
-        if (key === 'heroSlides' && Array.isArray(data.heroSlides)) {
-          value = { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) };
-        }
+        if (key === 'heroSlides') continue;
         contentData[key] = (value && typeof value === 'object')
           ? { bn: value.bn || '', en: value.en || '' }
           : { bn: String(value || ''), en: String(value || '') };
-      }
-      if (Array.isArray(data.heroSlides)) {
-        contentData.heroSlides = { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) };
       }
       var r2 = updateContent(contentData);
       result.content = !!(r2 && r2.success);
