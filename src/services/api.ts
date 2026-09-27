@@ -324,9 +324,12 @@ export const api = {
       }
 
       const serverHasHeroSlides = hasTopLevelHeroSlides || hasContentHeroSlides;
-      const effectiveHeroSlides = serverHasHeroSlides
+      // Never replace a working local/Admin slider with an empty response.
+      // This also keeps the site compatible with older GAS deployments.
+      const localHeroSlides = Array.isArray(localSettings.heroSlides) ? localSettings.heroSlides : [];
+      const effectiveHeroSlides = parsedHeroSlides.length
         ? parsedHeroSlides
-        : (Array.isArray(localSettings.heroSlides) ? localSettings.heroSlides : []);
+        : localHeroSlides;
 
       const mergedSettings = {
         ...remoteSettings,
