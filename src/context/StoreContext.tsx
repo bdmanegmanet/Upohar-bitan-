@@ -276,7 +276,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (data.settings) {
         const normalizedSettings = {
           ...data.settings,
-          heroSlides: (data.settings.heroSlides || []).map((slide) => ({
+          heroSlides: (Array.isArray(data.settings.heroSlides) && data.settings.heroSlides.length
+            ? data.settings.heroSlides
+            : ((data.settings.content as any)?.heroSlides || [])
+          ).map((slide) => ({
             ...slide,
             image: normalizeImageUrl(slide.image),
           })),
