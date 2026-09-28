@@ -55,7 +55,7 @@ interface StoreContextType {
   setSelectedProduct: (product: Product | null) => void;
   isCheckoutOpen: boolean;
   setIsCheckoutOpen: (open: boolean) => void;
-  buyNowProduct: (product: Product, quantity?: number) => void;
+  buyNowProduct: (product: Product, quantity?: number, selectedColor?: string, selectedSize?: string) => void;
   
   // Navigation / Page Routing (custom SPA router with #admin hash support)
   currentPage: 'home' | 'shop' | 'cart' | 'checkout' | 'wishlist' | 'orders' | 'admin' | 'about' | 'faq' | 'delivery' | 'returns' | 'terms' | 'privacy';
@@ -354,7 +354,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     showToast(`Added "${product.name}" to cart`);
   };
 
-  const buyNowProduct = (product: Product, quantity = 1) => {
+  const buyNowProduct = (product: Product, quantity = 1, selectedColor?: string, selectedSize?: string) => {
     if (product.stock <= 0 || product.status === 'Out of Stock') {
       showToast(language === 'bn' ? 'এই পণ্যটি বর্তমানে স্টকে নেই' : 'This product is currently out of stock');
       return;
@@ -362,8 +362,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCart([{
       product,
       quantity: Math.min(Math.max(1, quantity), product.stock),
-      selectedColor: product.color,
-      selectedSize: product.size,
+      selectedColor: selectedColor || product.color,
+      selectedSize: selectedSize || product.size,
     }]);
     setAppliedCoupon(null);
     setIsCartOpen(false);
@@ -400,7 +400,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const cartSubtotal = cart.reduce((acc, item) => {
-    const unitPrice = item.product.discountPrice ?? item.product.price;
+    const variantPrice = item.selectedSize && item.product.sizePrices?.[item.selectedSize];
+    const unitPrice = variantPrice ?? item.product.discountPrice ?? item.product.price;
     return acc + unitPrice * item.quantity;
   }, 0);
 
