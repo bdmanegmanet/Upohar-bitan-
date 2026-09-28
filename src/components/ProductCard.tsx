@@ -89,6 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div>
           {/* Metadata: Category & Subcategory unboxed with · */}
           <div className="flex items-center gap-1.5 text-xs text-stone-500 mb-1">
+            {product.brand && <><span className="text-[#A37835] font-medium">{product.brand}</span><span aria-hidden="true">·</span></>}
             <span>{product.category}</span>
             <span aria-hidden="true">·</span>
             <span>{product.subCategory}</span>
