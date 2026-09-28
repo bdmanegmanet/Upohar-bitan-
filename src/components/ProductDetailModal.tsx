@@ -47,11 +47,11 @@ export const ProductDetailModal: React.FC = () => {
   };
 
   const handleAddToCart = () => {
-    addToCart(selectedProduct, quantity);
+    addToCart(selectedProduct, quantity, selectedColor || selectedProduct.color, selectedSize || selectedProduct.size);
   };
 
   const handleBuyNow = () => {
-    buyNowProduct(selectedProduct, quantity);
+    buyNowProduct(selectedProduct, quantity, selectedColor || selectedProduct.color, selectedSize || selectedProduct.size);
     setSelectedProduct(null);
   };
 
