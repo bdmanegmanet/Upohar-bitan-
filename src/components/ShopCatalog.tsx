@@ -14,6 +14,7 @@ export const ShopCatalog: React.FC = () => {
     setSearchQuery,
   } = useStore();
 
+  const [selectedBrand, setSelectedBrand] = useState<string>('All');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('All');
   const [sortBy, setSortBy] = useState<'featured' | 'price-low' | 'price-high' | 'rating' | 'newest'>('featured');
   const [maxPrice, setMaxPrice] = useState<number>(30000);
@@ -21,7 +22,12 @@ export const ShopCatalog: React.FC = () => {
   const [selectedMaterial, setSelectedMaterial] = useState<string>('All');
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
-  // Derive distinct subcategories for current category from both category config and active products
+  const availableBrands = useMemo(() => {
+    const values = Array.from(new Set(products.map((p) => (p.brand || '').trim()).filter(Boolean)));
+    return ['All', ...values];
+  }, [products]);
+
+  // Derive distinct subcategories for current brand/category from both category config and products
   const availableSubcategories = useMemo(() => {
     const set = new Set<string>();
     if (selectedCategoryFilter !== 'All') {
@@ -30,17 +36,20 @@ export const ShopCatalog: React.FC = () => {
         catConfig.subcategories.forEach((s) => set.add(s));
       }
       products
-        .filter((p) => p.category.toLowerCase() === selectedCategoryFilter.toLowerCase())
+        .filter((p) =>
+          p.category.toLowerCase() === selectedCategoryFilter.toLowerCase() &&
+          (selectedBrand === 'All' || (p.brand || '').toLowerCase() === selectedBrand.toLowerCase())
+        )
         .forEach((p) => {
           if (p.subCategory) set.add(p.subCategory);
         });
     } else {
-      products.forEach((p) => {
-        if (p.subCategory) set.add(p.subCategory);
-      });
+      products
+        .filter((p) => selectedBrand === 'All' || (p.brand || '').toLowerCase() === selectedBrand.toLowerCase())
+        .forEach((p) => { if (p.subCategory) set.add(p.subCategory); });
     }
     return ['All', ...Array.from(set)];
-  }, [products, selectedCategoryFilter, storeCategories]);
+  }, [products, selectedBrand, selectedCategoryFilter, storeCategories]);
 
   // Derive distinct materials
   const availableMaterials = useMemo(() => {
@@ -56,7 +65,8 @@ export const ShopCatalog: React.FC = () => {
   const filteredProducts = useMemo(() => {
     return products
       .filter((p) => {
-        // Category filter
+        // Brand -> Category -> Subcategory cascading filters
+        if (selectedBrand !== 'All' && (p.brand || '') !== selectedBrand) return false;
         if (selectedCategoryFilter !== 'All' && p.category !== selectedCategoryFilter) {
           return false;
         }
@@ -102,6 +112,7 @@ export const ShopCatalog: React.FC = () => {
       });
   }, [
     products,
+    selectedBrand,
     selectedCategoryFilter,
     selectedSubCategory,
     searchQuery,
@@ -112,6 +123,7 @@ export const ShopCatalog: React.FC = () => {
   ]);
 
   const handleResetFilters = () => {
+    setSelectedBrand('All');
     setSelectedCategoryFilter('All');
     setSelectedSubCategory('All');
     setSearchQuery('');
@@ -194,6 +206,21 @@ export const ShopCatalog: React.FC = () => {
             isFilterDrawerOpen ? 'block' : 'hidden md:block'
           }`}
         >
+          {/* Brand -> Category -> Subcategory */}
+          <div className="bg-white p-5 rounded-xl border border-stone-200/80 shadow-xs space-y-3">
+            <div className="flex items-center justify-between text-xs font-semibold text-stone-900 uppercase tracking-wider">
+              <span>Brand</span>
+              {selectedBrand !== 'All' && <button onClick={() => { setSelectedBrand('All'); setSelectedCategoryFilter('All'); setSelectedSubCategory('All'); }} className="text-[11px] text-[#A37835] hover:underline">Clear</button>}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {availableBrands.map((brand) => (
+                <button key={brand} onClick={() => { setSelectedBrand(brand); setSelectedCategoryFilter('All'); setSelectedSubCategory('All'); }} className={`px-2.5 py-1 text-xs rounded-md border transition-colors cursor-pointer ${selectedBrand === brand ? 'bg-stone-900 text-white border-stone-900' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}>
+                  {brand === 'All' ? 'All Brands' : brand}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Category Tabs */}
           <div className="bg-white p-5 rounded-xl border border-stone-200/80 shadow-xs space-y-3">
             <div className="flex items-center justify-between text-xs font-semibold text-stone-900 uppercase tracking-wider">
