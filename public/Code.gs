@@ -51,6 +51,7 @@ function setupDatabase() {
   ];
   setSheetHeaders(productSheet, productHeaders);
   ensureProductSubcategoryColumn(productSheet);
+  ensureProductColumns(productSheet);
 
   // 2. Orders Sheet
   var orderSheet = getOrCreateSheet(ss, SHEETS.ORDERS);
@@ -335,36 +336,79 @@ function ensureProductSubcategoryColumn(sheet) {
 }
 
 /**
+ * Ensure newer product fields exist without deleting/reordering existing columns.
+ */
+function ensureProductColumns(sheet) {
+  var required = [
+    'Brand',
+    'Size_Enabled',
+    'Size_Options',
+    'Size_Prices',
+    'Color_Enabled',
+    'Color_Options',
+    'Image_1',
+    'Image_2',
+    'Image_3',
+    'Updated_Date'
+  ];
+  var lastCol = sheet.getLastColumn();
+  var headers = lastCol ? sheet.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+  required.forEach(function(name) {
+    if (headers.indexOf(name) === -1) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(name);
+      headers.push(name);
+    }
+  });
+}
+
+/**
  * Add a new product to the Products sheet
  */
+
 
 function addProduct(product) {
   var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
 
-  var newId = product.Product_ID || ('PRD-' + (100 + sheet.getLastRow()));
-  var createdDate = new Date().toISOString();
+  ensureProductSubcategoryColumn(sheet);
+  ensureProductColumns(sheet);
 
-  var row = [
-    newId,
-    product.Product_Name || '',
-    product.Category || 'Plates',
-    product.Subcategory || product.SubCategory || product.subCategory || '',
-    product.Short_Description || '',
-    product.Description || '',
-    Number(product.Price || 0),
-    product.Discount_Price ? Number(product.Discount_Price) : '',
-    Number(product.Stock || 0),
-    product.SKU || ('AUR-' + Math.floor(Math.random() * 9000 + 1000)),
-    product.Images || '',
-    product.Material || 'Porcelain',
-    product.Size || '',
-    product.Color || '',
-    Number(product.Rating || 5),
-    product.Status || 'Active',
-    createdDate
-  ];
+  var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  var newId = product.Product_ID || ('PRD-' + Math.max(100, sheet.getLastRow() + 99));
+  var now = new Date().toISOString();
+  var images = String(product.Images || '').split(',').map(function(s){return s.trim();}).filter(Boolean);
 
+  var values = {
+    Product_ID: newId,
+    Product_Name: product.Product_Name || '',
+    Brand: product.Brand || '',
+    Category: product.Category || '',
+    Subcategory: product.Subcategory || product.Sub_Category || product.SubCategory || '',
+    Short_Description: product.Short_Description || '',
+    Description: product.Description || '',
+    Price: Number(product.Price || 0),
+    Discount_Price: product.Discount_Price ? Number(product.Discount_Price) : '',
+    Stock: Number(product.Stock || 0),
+    SKU: product.SKU || '',
+    Images: images.join(', '),
+    Image_1: images[0] || '',
+    Image_2: images[1] || '',
+    Image_3: images[2] || '',
+    Material: product.Material || '',
+    Size: product.Size || '',
+    Size_Enabled: String(product.Size_Enabled).toLowerCase() === 'true' ? 'TRUE' : 'FALSE',
+    Size_Options: product.Size_Options || '',
+    Size_Prices: product.Size_Prices || '',
+    Color: product.Color || '',
+    Color_Enabled: String(product.Color_Enabled).toLowerCase() === 'true' ? 'TRUE' : 'FALSE',
+    Color_Options: product.Color_Options || '',
+    Rating: Number(product.Rating || 5),
+    Status: product.Status || 'Active',
+    Created_Date: product.Created_Date || now,
+    Updated_Date: now
+  };
+
+  var row = headers.map(function(h){ return values[h] !== undefined ? values[h] : ''; });
   sheet.appendRow(row);
   return { success: true, message: 'Product Added Successfully', data: { id: newId } };
 }
@@ -376,35 +420,57 @@ function updateProduct(product) {
   var sheet = getSpreadsheet().getSheetByName(SHEETS.PRODUCTS);
   if (!sheet) return { success: false, message: 'Products sheet not found' };
 
+  ensureProductSubcategoryColumn(sheet);
+  ensureProductColumns(sheet);
+
   var data = sheet.getDataRange().getValues();
+  if (data.length < 2) return { success: false, message: 'No products found' };
   var headers = data[0];
   var idCol = headers.indexOf('Product_ID');
   var targetId = String(product.Product_ID || product.id);
 
+  var fieldMap = {
+    Product_ID: targetId,
+    Product_Name: product.Product_Name,
+    Brand: product.Brand,
+    Category: product.Category,
+    Subcategory: product.Subcategory !== undefined ? product.Subcategory : (product.Sub_Category !== undefined ? product.Sub_Category : product.SubCategory),
+    Short_Description: product.Short_Description,
+    Description: product.Description,
+    Price: product.Price !== undefined ? Number(product.Price) : undefined,
+    Discount_Price: product.Discount_Price !== undefined ? (product.Discount_Price ? Number(product.Discount_Price) : '') : undefined,
+    Stock: product.Stock !== undefined ? Number(product.Stock) : undefined,
+    SKU: product.SKU,
+    Images: product.Images,
+    Material: product.Material,
+    Size: product.Size,
+    Size_Enabled: product.Size_Enabled !== undefined ? (String(product.Size_Enabled).toLowerCase() === 'true' ? 'TRUE' : 'FALSE') : undefined,
+    Size_Options: product.Size_Options,
+    Size_Prices: product.Size_Prices,
+    Color: product.Color,
+    Color_Enabled: product.Color_Enabled !== undefined ? (String(product.Color_Enabled).toLowerCase() === 'true' ? 'TRUE' : 'FALSE') : undefined,
+    Color_Options: product.Color_Options,
+    Rating: product.Rating !== undefined ? Number(product.Rating) : undefined,
+    Status: product.Status,
+    Updated_Date: new Date().toISOString()
+  };
+
+  if (fieldMap.Images !== undefined) {
+    var imgs = String(fieldMap.Images || '').split(',').map(function(s){return s.trim();}).filter(Boolean);
+    fieldMap.Image_1 = imgs[0] || '';
+    fieldMap.Image_2 = imgs[1] || '';
+    fieldMap.Image_3 = imgs[2] || '';
+  }
+
   for (var i = 1; i < data.length; i++) {
     if (String(data[i][idCol]) === targetId) {
       var rowIndex = i + 1;
-      
-      // Update cells
-      if (product.Product_Name !== undefined) sheet.getRange(rowIndex, headers.indexOf('Product_Name') + 1).setValue(product.Product_Name);
-      if (product.Category !== undefined) sheet.getRange(rowIndex, headers.indexOf('Category') + 1).setValue(product.Category);
-      if (product.Subcategory !== undefined || product.SubCategory !== undefined || product.subCategory !== undefined) {
-        var subcategoryValue = product.Subcategory !== undefined ? product.Subcategory : (product.SubCategory !== undefined ? product.SubCategory : product.subCategory);
-        var subcategoryCol = headers.indexOf('Subcategory');
-        if (subcategoryCol !== -1) sheet.getRange(rowIndex, subcategoryCol + 1).setValue(subcategoryValue || '');
-      }
-      if (product.Short_Description !== undefined) sheet.getRange(rowIndex, headers.indexOf('Short_Description') + 1).setValue(product.Short_Description);
-      if (product.Description !== undefined) sheet.getRange(rowIndex, headers.indexOf('Description') + 1).setValue(product.Description);
-      if (product.Price !== undefined) sheet.getRange(rowIndex, headers.indexOf('Price') + 1).setValue(Number(product.Price));
-      if (product.Discount_Price !== undefined) sheet.getRange(rowIndex, headers.indexOf('Discount_Price') + 1).setValue(product.Discount_Price ? Number(product.Discount_Price) : '');
-      if (product.Stock !== undefined) sheet.getRange(rowIndex, headers.indexOf('Stock') + 1).setValue(Number(product.Stock));
-      if (product.SKU !== undefined) sheet.getRange(rowIndex, headers.indexOf('SKU') + 1).setValue(product.SKU);
-      if (product.Images !== undefined) sheet.getRange(rowIndex, headers.indexOf('Images') + 1).setValue(product.Images);
-      if (product.Material !== undefined) sheet.getRange(rowIndex, headers.indexOf('Material') + 1).setValue(product.Material);
-      if (product.Size !== undefined) sheet.getRange(rowIndex, headers.indexOf('Size') + 1).setValue(product.Size);
-      if (product.Color !== undefined) sheet.getRange(rowIndex, headers.indexOf('Color') + 1).setValue(product.Color);
-      if (product.Status !== undefined) sheet.getRange(rowIndex, headers.indexOf('Status') + 1).setValue(product.Status);
-
+      Object.keys(fieldMap).forEach(function(key) {
+        var col = headers.indexOf(key);
+        if (col !== -1 && fieldMap[key] !== undefined) {
+          sheet.getRange(rowIndex, col + 1).setValue(fieldMap[key]);
+        }
+      });
       return { success: true, message: 'Product updated successfully', data: { id: targetId } };
     }
   }
@@ -776,19 +842,24 @@ function syncAll(data) {
       if(!result.settings) errors.push('settings: ' + ((r1 && r1.message) || 'failed'));
     }
 
+    // Hero slider is synced independently so it cannot be lost with Content updates.
+    if (Array.isArray(data && data.heroSlides)) {
+      var sliderContent = {
+        heroSlides: { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) }
+      };
+      var sliderResult = updateContent(sliderContent);
+      result.content = !!(sliderResult && sliderResult.success);
+      if(!result.content) errors.push('heroSlides: ' + ((sliderResult && sliderResult.message) || 'failed'));
+    }
+
     if(data && data.content) {
       var contentData = {};
       for (var key in data.content) {
         var value = data.content[key];
-        if (key === 'heroSlides' && Array.isArray(data.heroSlides)) {
-          value = { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) };
-        }
+        if (key === 'heroSlides') continue;
         contentData[key] = (value && typeof value === 'object')
           ? { bn: value.bn || '', en: value.en || '' }
           : { bn: String(value || ''), en: String(value || '') };
-      }
-      if (Array.isArray(data.heroSlides)) {
-        contentData.heroSlides = { bn: JSON.stringify(data.heroSlides), en: JSON.stringify(data.heroSlides) };
       }
       var r2 = updateContent(contentData);
       result.content = !!(r2 && r2.success);
