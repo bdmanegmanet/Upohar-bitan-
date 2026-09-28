@@ -28,17 +28,22 @@ export const ProductDetailModal: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'details' | 'specs' | 'care'>('details');
+  const [selectedSize, setSelectedSize] = useState('');
+  const [selectedColor, setSelectedColor] = useState('');
 
   if (!selectedProduct) return null;
 
   const inWishlist = isInWishlist(selectedProduct.id);
   const hasDiscount = selectedProduct.discountPrice && selectedProduct.discountPrice < selectedProduct.price;
-  const currentPrice = selectedProduct.discountPrice ?? selectedProduct.price;
+  const variantPrice = selectedSize && selectedProduct.sizePrices?.[selectedSize];
+  const currentPrice = variantPrice ?? selectedProduct.discountPrice ?? selectedProduct.price;
 
   const handleClose = () => {
     setSelectedProduct(null);
     setQuantity(1);
     setSelectedImageIndex(0);
+    setSelectedSize('');
+    setSelectedColor('');
   };
 
   const handleAddToCart = () => {
@@ -168,6 +173,29 @@ export const ProductDetailModal: React.FC = () => {
                 )}
                 <span className="text-xs text-stone-500 ml-auto">VAT included</span>
               </div>
+
+              {(selectedProduct.sizeEnabled && (selectedProduct.sizeOptions || []).length > 0) || (selectedProduct.colorEnabled && (selectedProduct.colorOptions || []).length > 0) ? (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedProduct.sizeEnabled && (selectedProduct.sizeOptions || []).length > 0 && (
+                    <label className="text-xs font-medium text-stone-700">
+                      Select Size
+                      <select value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)} className="mt-1 w-full px-3 py-2.5 bg-white border border-stone-300 rounded-lg">
+                        <option value="">Select size</option>
+                        {(selectedProduct.sizeOptions || []).map((s) => <option key={s} value={s}>{s}{selectedProduct.sizePrices?.[s] ? ` — ৳${selectedProduct.sizePrices[s].toLocaleString()}` : ''}</option>)}
+                      </select>
+                    </label>
+                  )}
+                  {selectedProduct.colorEnabled && (selectedProduct.colorOptions || []).length > 0 && (
+                    <label className="text-xs font-medium text-stone-700">
+                      Select Color
+                      <select value={selectedColor} onChange={(e) => setSelectedColor(e.target.value)} className="mt-1 w-full px-3 py-2.5 bg-white border border-stone-300 rounded-lg">
+                        <option value="">Select color</option>
+                        {(selectedProduct.colorOptions || []).map((color) => <option key={color} value={color}>{color}</option>)}
+                      </select>
+                    </label>
+                  )}
+                </div>
+              ) : null}
 
               {/* Short Description */}
               <p className="text-sm text-stone-600 mt-4 leading-relaxed font-light">
