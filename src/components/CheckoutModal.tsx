@@ -139,7 +139,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
         productId: item.product.id,
         productName: item.product.name,
         sku: item.product.sku,
-        price: item.product.discountPrice ?? item.product.price,
+        price: item.selectedSize && item.product.sizePrices?.[item.selectedSize] ? item.product.sizePrices[item.selectedSize] : (item.product.discountPrice ?? item.product.price),
         quantity: item.quantity,
         image: item.product.images[0] || '',
         color: item.selectedColor || item.product.color,
@@ -575,7 +575,7 @@ export const CheckoutModal: React.FC<{ fullPage?: boolean }> = ({ fullPage = fal
                     {item.quantity}× {item.product.name}
                   </span>
                   <span className="font-medium text-stone-900 tabular-nums">
-                    ৳{((item.product.discountPrice ?? item.product.price) * item.quantity).toLocaleString()}
+                    ৳{((item.selectedSize && item.product.sizePrices?.[item.selectedSize] ? item.product.sizePrices[item.selectedSize] : (item.product.discountPrice ?? item.product.price)) * item.quantity).toLocaleString()}
                   </span>
                 </div>
               ))}
