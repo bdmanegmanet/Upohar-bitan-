@@ -252,6 +252,19 @@ function initStorage() {
 // Call on module load
 initStorage();
 
+function parseVariantPrices(raw: any): Record<string, number> {
+  const out: Record<string, number> = {};
+  String(raw || '').split('|').forEach((part) => {
+    const [size, price] = part.split(':');
+    if (size && price !== undefined && !Number.isNaN(Number(price))) out[size.trim()] = Number(price);
+  });
+  return out;
+}
+
+function serializeVariantPrices(values?: Record<string, number>): string {
+  return Object.entries(values || {}).map(([size, price]) => `${size}:${price}`).join('|');
+}
+
 export const api = {
   async bootstrap(): Promise<{ products: Product[]; settings: StoreSettings; categories: CategoryItem[] }> {
     initStorage();
@@ -275,8 +288,9 @@ export const api = {
         ? json.data.products.map((item: any) => ({
             id: item.Product_ID || item.id,
             name: item.Product_Name || item.name,
+            brand: item.Brand || item.brand || '',
             category: item.Category || 'Plates',
-            subCategory: item.Subcategory || item.SubCategory || item.subCategory || '',
+            subCategory: item.Subcategory || item.Sub_Category || item.SubCategory || item.subCategory || '',
             shortDescription: item.Short_Description || '',
             description: item.Description || '',
             price: Number(item.Price) || 0,
@@ -286,12 +300,18 @@ export const api = {
             images: normalizeImageList(String(item.Images || '')),
             material: item.Material || 'Porcelain',
             size: item.Size || '',
+            sizeEnabled: String(item.Size_Enabled).toLowerCase() === 'true',
+            sizeOptions: String(item.Size_Options || '').split('|').map((s: string) => s.trim()).filter(Boolean),
+            sizePrices: parseVariantPrices(item.Size_Prices),
             color: item.Color || '',
+            colorEnabled: String(item.Color_Enabled).toLowerCase() === 'true',
+            colorOptions: String(item.Color_Options || '').split('|').map((s: string) => s.trim()).filter(Boolean),
             rating: Number(item.Rating) || 5,
             reviewCount: Number(item.Review_Count) || 0,
             status: item.Status || 'Active',
             specifications: { dishwasherSafe: true, microwaveSafe: true, foodGrade: true },
             createdDate: item.Created_Date || new Date().toISOString(),
+            updatedDate: item.Updated_Date || item.Created_Date || new Date().toISOString(),
           }))
         : [];
 
@@ -386,8 +406,9 @@ export const api = {
             const mapped: Product[] = json.data.map((item: any) => ({
               id: item.Product_ID || item.id,
               name: item.Product_Name || item.name,
-              category: item.Category || 'Plates',
-              subCategory: item.Subcategory || item.SubCategory || item.subCategory || '',
+              brand: item.Brand || item.brand || '',
+            category: item.Category || 'Plates',
+            subCategory: item.Subcategory || item.Sub_Category || item.SubCategory || item.subCategory || '',
               shortDescription: item.Short_Description || '',
               description: item.Description || '',
               price: Number(item.Price) || 0,
@@ -397,7 +418,12 @@ export const api = {
               images: normalizeImageList(String(item.Images || '')),
               material: item.Material || 'Porcelain',
               size: item.Size || '',
-              color: item.Color || '',
+            sizeEnabled: String(item.Size_Enabled).toLowerCase() === 'true',
+            sizeOptions: String(item.Size_Options || '').split('|').map((s: string) => s.trim()).filter(Boolean),
+            sizePrices: parseVariantPrices(item.Size_Prices),
+            color: item.Color || '',
+            colorEnabled: String(item.Color_Enabled).toLowerCase() === 'true',
+            colorOptions: String(item.Color_Options || '').split('|').map((s: string) => s.trim()).filter(Boolean),
               rating: Number(item.Rating) || 5,
               reviewCount: 12,
               status: (item.Status as any) || 'Active',
@@ -407,6 +433,7 @@ export const api = {
                 foodGrade: true,
               },
               createdDate: item.Created_Date || new Date().toISOString(),
+            updatedDate: item.Updated_Date || item.Created_Date || new Date().toISOString(),
             }));
             // Update local cache
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(mapped));
@@ -452,7 +479,9 @@ export const api = {
             data: {
               Product_ID: newProduct.id,
               Product_Name: newProduct.name,
+              Brand: newProduct.brand || '',
               Category: newProduct.category,
+              Subcategory: newProduct.subCategory || '',
               Short_Description: newProduct.shortDescription,
               Description: newProduct.description,
               Price: newProduct.price,
@@ -463,6 +492,11 @@ export const api = {
               Material: newProduct.material,
               Size: newProduct.size,
               Color: newProduct.color,
+              Size_Enabled: newProduct.sizeEnabled ? 'TRUE' : 'FALSE',
+              Size_Options: (newProduct.sizeOptions || []).join('|'),
+              Size_Prices: serializeVariantPrices(newProduct.sizePrices),
+              Color_Enabled: newProduct.colorEnabled ? 'TRUE' : 'FALSE',
+              Color_Options: (newProduct.colorOptions || []).join('|'),
               Rating: newProduct.rating,
               Status: newProduct.status,
             },
@@ -493,7 +527,9 @@ export const api = {
             data: {
               Product_ID: product.id,
               Product_Name: product.name,
+              Brand: product.brand || '',
               Category: product.category,
+              Subcategory: product.subCategory || '',
               Short_Description: product.shortDescription,
               Description: product.description,
               Price: product.price,
@@ -504,7 +540,13 @@ export const api = {
               Material: product.material,
               Size: product.size,
               Color: product.color,
+              Size_Enabled: product.sizeEnabled ? 'TRUE' : 'FALSE',
+              Size_Options: (product.sizeOptions || []).join('|'),
+              Size_Prices: serializeVariantPrices(product.sizePrices),
+              Color_Enabled: product.colorEnabled ? 'TRUE' : 'FALSE',
+              Color_Options: (product.colorOptions || []).join('|'),
               Status: product.status,
+              Updated_Date: new Date().toISOString(),
             },
           }),
         });
