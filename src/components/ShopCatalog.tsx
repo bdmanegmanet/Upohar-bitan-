@@ -254,7 +254,9 @@ export const ShopCatalog: React.FC = () => {
                 <span className="tabular-nums text-stone-400">{products.length}</span>
               </button>
 
-              {storeCategories.map((catItem) => {
+              {storeCategories
+                .filter((catItem) => selectedBrand === 'All' || products.some((p) => (p.brand || '').toLowerCase() === selectedBrand.toLowerCase() && p.category.toLowerCase() === catItem.name.toLowerCase()))
+                .map((catItem) => {
                 const cat = catItem.name;
                 const count = products.filter((p) => p.category.toLowerCase() === cat.toLowerCase()).length;
                 return (
