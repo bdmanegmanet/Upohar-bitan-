@@ -12,6 +12,7 @@ export interface CategoryItem {
 export interface Product {
   id: string; // Product_ID (e.g. PRD-101)
   name: string;
+  brand?: string;
   category: ProductCategory;
   subCategory: ProductSubCategory;
   shortDescription: string;
@@ -22,8 +23,13 @@ export interface Product {
   sku: string;
   images: string[];
   material: string; // Bone China, Stoneware, Porcelain, 18/10 Stainless Steel, Acacia Wood, etc.
-  size: string; // e.g. 10.5 inch, 350ml, 24-piece set
-  color: string;
+  size: string; // backward-compatible display size
+  sizeEnabled?: boolean;
+  sizeOptions?: string[];
+  sizePrices?: Record<string, number>;
+  color: string; // backward-compatible display color
+  colorEnabled?: boolean;
+  colorOptions?: string[];
   rating: number; // 1 to 5
   reviewCount: number;
   status: 'Active' | 'Out of Stock' | 'Draft';
@@ -39,6 +45,7 @@ export interface Product {
     weight?: string;
   };
   createdDate: string;
+  updatedDate?: string;
 }
 
 export type OrderStatus =
