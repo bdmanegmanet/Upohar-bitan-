@@ -231,7 +231,7 @@ export const AdminPanel: React.FC = () => {
   // Save product (Add or Edit)
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    const imagesArray = normalizeImageList(productForm.imagesText);
+    const imagesArray = normalizeImageList(productForm.imagesText).slice(0, 3);
 
     if (imagesArray.length === 0) {
       imagesArray.push(products[0]?.images[0] || '');
@@ -1465,7 +1465,7 @@ export const AdminPanel: React.FC = () => {
 
                 <div className="sm:col-span-2">
                   <label className="block font-medium text-stone-700 mb-1">
-                    Image URLs (Comma separated Google Drive or web URLs)
+                    Product Images — সর্বোচ্চ ৩টি (Google Drive বা direct image URL, comma separated)
                   </label>
                   <textarea
                     rows={2}
