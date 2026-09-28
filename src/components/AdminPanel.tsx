@@ -113,6 +113,7 @@ export const AdminPanel: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [productForm, setProductForm] = useState({
     name: '',
+    brand: '',
     category: 'Plates' as ProductCategory,
     subCategory: 'Dinner Plate' as ProductSubCategory,
     shortDescription: '',
@@ -124,7 +125,12 @@ export const AdminPanel: React.FC = () => {
     imagesText: '',
     material: 'Fine Bone China',
     size: '10.5 inches',
+    sizeEnabled: false,
+    sizeOptionsText: '',
+    sizePricesText: '',
     color: 'Pure White & Gold',
+    colorEnabled: false,
+    colorOptionsText: '',
     status: 'Active' as 'Active' | 'Out of Stock' | 'Draft',
   });
 
@@ -171,6 +177,7 @@ export const AdminPanel: React.FC = () => {
     setEditingProduct(null);
     setProductForm({
       name: '',
+      brand: '',
       category: 'Plates',
       subCategory: 'Dinner Plate',
       shortDescription: '',
@@ -182,7 +189,12 @@ export const AdminPanel: React.FC = () => {
       imagesText: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=800&q=80',
       material: 'Bone China',
       size: '10.5 inches',
+      sizeEnabled: false,
+      sizeOptionsText: '',
+      sizePricesText: '',
       color: 'White & Gold',
+      colorEnabled: false,
+      colorOptionsText: '',
       status: 'Active',
     });
     setIsProductModalOpen(true);
@@ -193,6 +205,7 @@ export const AdminPanel: React.FC = () => {
     setEditingProduct(prod);
     setProductForm({
       name: prod.name,
+      brand: prod.brand || '',
       category: prod.category,
       subCategory: prod.subCategory,
       shortDescription: prod.shortDescription,
@@ -204,7 +217,12 @@ export const AdminPanel: React.FC = () => {
       imagesText: prod.images.join(', '),
       material: prod.material,
       size: prod.size,
+      sizeEnabled: !!prod.sizeEnabled,
+      sizeOptionsText: (prod.sizeOptions || []).join(', '),
+      sizePricesText: Object.entries(prod.sizePrices || {}).map(([k,v]) => `${k}:${v}`).join(', '),
       color: prod.color,
+      colorEnabled: !!prod.colorEnabled,
+      colorOptionsText: (prod.colorOptions || []).join(', '),
       status: prod.status,
     });
     setIsProductModalOpen(true);
@@ -223,6 +241,7 @@ export const AdminPanel: React.FC = () => {
       const updated: Product = {
         ...editingProduct,
         name: productForm.name,
+        brand: productForm.brand,
         category: productForm.category,
         subCategory: productForm.subCategory,
         shortDescription: productForm.shortDescription,
@@ -234,7 +253,15 @@ export const AdminPanel: React.FC = () => {
         images: imagesArray,
         material: productForm.material,
         size: productForm.size,
+        sizeEnabled: productForm.sizeEnabled,
+        sizeOptions: productForm.sizeOptionsText.split(',').map((s: string) => s.trim()).filter(Boolean),
+        sizePrices: Object.fromEntries(productForm.sizePricesText.split(',').map((x: string) => {
+          const [k,v] = x.split(':');
+          return [String(k || '').trim(), Number(v)];
+        }).filter(([k,v]) => k && Number.isFinite(v))),
         color: productForm.color,
+        colorEnabled: productForm.colorEnabled,
+        colorOptions: productForm.colorOptionsText.split(',').map((s: string) => s.trim()).filter(Boolean),
         status: productForm.status,
       };
       await api.updateProduct(updated);
@@ -242,6 +269,7 @@ export const AdminPanel: React.FC = () => {
     } else {
       await api.addProduct({
         name: productForm.name,
+        brand: productForm.brand,
         category: productForm.category,
         subCategory: productForm.subCategory,
         shortDescription: productForm.shortDescription,
@@ -253,7 +281,15 @@ export const AdminPanel: React.FC = () => {
         images: imagesArray,
         material: productForm.material,
         size: productForm.size,
+        sizeEnabled: productForm.sizeEnabled,
+        sizeOptions: productForm.sizeOptionsText.split(',').map((s: string) => s.trim()).filter(Boolean),
+        sizePrices: Object.fromEntries(productForm.sizePricesText.split(',').map((x: string) => {
+          const [k,v] = x.split(':');
+          return [String(k || '').trim(), Number(v)];
+        }).filter(([k,v]) => k && Number.isFinite(v))),
         color: productForm.color,
+        colorEnabled: productForm.colorEnabled,
+        colorOptions: productForm.colorOptionsText.split(',').map((s: string) => s.trim()).filter(Boolean),
         rating: 5.0,
         reviewCount: 0,
         status: productForm.status,
@@ -1287,6 +1323,11 @@ export const AdminPanel: React.FC = () => {
                 </div>
 
                 <div>
+                  <label className="block font-medium text-stone-700 mb-1">Brand (ব্র্যান্ড)</label>
+                  <input type="text" value={productForm.brand} onChange={(e) => setProductForm({ ...productForm, brand: e.target.value })} placeholder="যেমন: Kiam" className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg focus:bg-white" />
+                </div>
+
+                <div>
                   <div className="flex items-center justify-between mb-1">
                     <label className="font-medium text-stone-700">Category (ক্যাটাগরি)</label>
                     <button
@@ -1400,6 +1441,26 @@ export const AdminPanel: React.FC = () => {
                     onChange={(e) => setProductForm({ ...productForm, size: e.target.value })}
                     className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg focus:bg-white"
                   />
+                </div>
+
+                <div className="sm:col-span-2 p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-3">
+                  <label className="flex items-center gap-2 font-medium text-stone-700">
+                    <input type="checkbox" checked={productForm.sizeEnabled} onChange={(e) => setProductForm({ ...productForm, sizeEnabled: e.target.checked })} />
+                    Size Option চালু করুন
+                  </label>
+                  {productForm.sizeEnabled && (
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      <input value={productForm.sizeOptionsText} onChange={(e) => setProductForm({ ...productForm, sizeOptionsText: e.target.value })} placeholder="Sizes: 22cm, 28cm, 32cm" className="px-3 py-2 bg-white border border-stone-300 rounded-lg" />
+                      <input value={productForm.sizePricesText} onChange={(e) => setProductForm({ ...productForm, sizePricesText: e.target.value })} placeholder="Prices: 22cm:2400, 28cm:2800" className="px-3 py-2 bg-white border border-stone-300 rounded-lg" />
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2 font-medium text-stone-700">
+                    <input type="checkbox" checked={productForm.colorEnabled} onChange={(e) => setProductForm({ ...productForm, colorEnabled: e.target.checked })} />
+                    Color Option চালু করুন
+                  </label>
+                  {productForm.colorEnabled && (
+                    <input value={productForm.colorOptionsText} onChange={(e) => setProductForm({ ...productForm, colorOptionsText: e.target.value })} placeholder="Colors: Black, White, Blue" className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg" />
+                  )}
                 </div>
 
                 <div className="sm:col-span-2">
